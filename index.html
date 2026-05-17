@@ -122,6 +122,10 @@
                     <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Email manzilingiz</label>
                     <input type="email" id="loginEmail" placeholder="user@vdx.uz" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
                 </div>
+                <div>
+                    <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Parol</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
+                </div>
                 <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 font-bold text-slate-950 rounded-xl transition-all cursor-pointer">Kirish</button>
             </form>
 
@@ -133,6 +137,10 @@
                 <div>
                     <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Email</label>
                     <input type="email" id="regEmail" placeholder="user@vdx.uz" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
+                </div>
+                <div>
+                    <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Parol yarating</label>
+                    <input type="password" id="regPassword" placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
                 </div>
                 <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 font-bold text-slate-950 rounded-xl transition-all cursor-pointer">Hisob yaratish</button>
             </form>
@@ -163,7 +171,7 @@
         const logoutBtn = document.getElementById('logoutBtn');
 
         // Seansni yuklash
-        let currentUserEmail = localStorage.getItem('user_email') || "user@vdx.uz";
+        let currentUserEmail = localStorage.getItem('user_email') || "";
         let currentUserTier = localStorage.getItem('user_tier') || "free";
         let currentUserName = localStorage.getItem('user_name') || "";
 
@@ -183,7 +191,7 @@
         }
         updateAuthUI();
 
-        // 🌟 Modallarni ochish mexanizmi (Click kafolatlangan)
+        // Modallarni ochish mexanizmi
         if(authModalBtn) {
             authModalBtn.addEventListener('click', function() {
                 authModal.classList.remove('hidden');
@@ -213,7 +221,7 @@
         if(logoutBtn) {
             logoutBtn.onclick = () => {
                 localStorage.clear();
-                currentUserEmail = "user@vdx.uz";
+                currentUserEmail = "";
                 currentUserTier = "free";
                 currentUserName = "";
                 updateAuthUI();
@@ -221,49 +229,69 @@
             };
         }
 
-        // 🔐 Tizimga kirish (Login API)
+        // 🔐 Tizimga kirish (Xavfsiz JSON POST)
         if(loginForm) {
             loginForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
+                
                 try {
-                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/login?email=${encodeURIComponent(email)}`, { method: 'POST' });
+                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    
                     if (!response.ok) {
                         const errData = await response.json();
-                        throw new Error(errData.detail || 'Foydalanuvchi topilmadi!');
+                        throw new Error(errData.detail || 'Email yoki parol xato!');
                     }
+                    
                     const data = await response.json();
                     
-                    localStorage.setItem('user_email', email);
-                    localStorage.setItem('user_tier', data.tier);
-                    localStorage.setItem('user_name', data.username);
+                    // JWT token va foydalanuvchini saqlash
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('user_email', data.user.email);
+                    localStorage.setItem('user_tier', data.user.tier);
+                    localStorage.setItem('user_name', data.user.username);
                     
-                    currentUserEmail = email;
-                    currentUserTier = data.tier;
-                    currentUserName = data.username;
+                    currentUserEmail = data.user.email;
+                    currentUserTier = data.user.tier;
+                    currentUserName = data.user.username;
                     
                     updateAuthUI();
                     authModal.classList.add('hidden');
-                    alert(`Xush kelibsiz, ${data.username}!`);
+                    loginForm.reset();
+                    alert(`Xush kelibsiz, ${data.user.username}!`);
                 } catch (err) {
                     alert("Xatolik: " + err.message);
                 }
             };
         }
 
-        // 📝 Ro'yxatdan o'tish (Register API)
+        // 📝 Ro'yxatdan o'tish (Xavfsiz JSON POST)
         if(registerForm) {
             registerForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const username = document.getElementById('regUsername').value.trim();
                 const email = document.getElementById('regEmail').value.trim();
+                const password = document.getElementById('regPassword').value;
+                
                 try {
-                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/register?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`, { method: 'POST' });
+                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, email, password })
+                    });
+                    
                     if (!response.ok) {
                         const errData = await response.json();
                         throw new Error(errData.detail || 'Xatolik yuz berdi.');
                     }
-                    alert('Muvaffaqiyatli hisob yaratildi! "Tizimga kirish" bo\'limidan kirishingiz mumkin.');
+                    
+                    alert('Muvaffaqiyatli hisob yaratildi! Endi kirishingiz mumkin.');
+                    registerForm.reset();
                     tabLogin.click();
                 } catch (err) {
                     alert("Xatolik: " + err.message);
@@ -279,7 +307,11 @@
                 return;
             }
             try {
-                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?email=${encodeURIComponent(currentUserEmail)}&plan=${plan}&provider=${provider}`, { method: 'POST' });
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?email=${encodeURIComponent(currentUserEmail)}&plan=${plan}&provider=${provider}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (!response.ok) throw new Error('Invoys yaratishda xatolik yuz berdi.');
                 const data = await response.json();
                 if (data.payment_url) {
@@ -310,27 +342,9 @@
                     cleanUrl = 'https://' + cleanUrl;
                 }
 
-                const backendUrl = `${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(currentUserEmail)}`;
+                // Agar foydalanuvchi kirgan bo'lsa token yuborish logikasi uchun tayyorgarlik
+                const emailToSend = currentUserEmail || "guest@vdx.uz";
+                const backendUrl = `${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(emailToSend)}`;
                 const eventSource = new EventSource(backendUrl);
 
-                eventSource.onmessage = function(event) {
-                    if (outputTarget.textContent === 'Tizim tayyorlanmoqda... \n') {
-                        outputTarget.textContent = '';
-                    }
-                    outputTarget.textContent += event.data + '\n';
-                    outputTarget.scrollTop = outputTarget.scrollHeight;
-                };
-
-                eventSource.onerror = function(err) {
-                    eventSource.close();
-                    submitBtn.disabled = false;
-                    urlInput.disabled = false;
-                    btnText.textContent = 'Auditni boshlash';
-                    statusDot.className = "w-3 h-3 rounded-full bg-green-500";
-                };
-            });
-        }
-    </script>
-</body>
-                        </html>
-    
+                eventSour
