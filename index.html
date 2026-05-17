@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDX AI // Cyber Auditor</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white font-sans selection:bg-cyan-500 selection:text-slate-900 relative min-h-screen overflow-x-hidden">
+
+    <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.15),transparent_50%)] pointer-events-none"></div>
+
+    <div class="max-w-4xl mx-auto px-4 py-16 relative z-10">
+        <div class="text-center mb-12">
+            <div class="inline-block px-3 py-1 bg-cyan-950/50 border border-cyan-500/30 rounded-full text-cyan-400 text-xs font-mono uppercase tracking-widest mb-4">
+                🛡️ AI Security Core Active
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-200 to-indigo-400 mb-4">
+                VDX AI // Cyber Auditor
+            </h1>
+            <p class="text-slate-400 text-lg max-w-xl mx-auto">
+                Veb-saytingiz xavfsizlik holatini real vaqt rejimida skaner qiling va sun'iy intellekt yordamida tuzatish kodlariga ega bo'ling.
+            </p>
+        </div>
+
+        <form id="auditForm" class="bg-slate-900/60 backdrop-blur-md p-4 border border-slate-800 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-3 mb-10">
+            <div class="flex-1 relative">
+                <input
+                    type="text"
+                    id="urlInput"
+                    placeholder="Masalan: google.com yoki https://example.com"
+                    class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono transition-colors"
+                    required
+                />
+            </div>
+            <button
+                type="submit"
+                id="submitBtn"
+                class="sm:px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 rounded-xl font-bold text-slate-950 transition-all shadow-lg shadow-cyan-500/20 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+            >
+                <span id="btnText">Auditni boshlash</span>
+            </button>
+        </form>
+
+        <div id="resultPanel" class="hidden bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
+            <div class="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-cyan-500 animate-pulse"></span>
+                    <span class="font-mono text-xs text-slate-400 uppercase tracking-wider">Live System Output</span>
+                </div>
+                <span class="text-xs text-cyan-400 font-mono">Gemini 2.5 Flash</span>
+            </div>
+            <div class="p-6 md:p-8 max-w-none">
+                <pre id="outputTarget" class="whitespace-pre-wrap font-mono text-slate-200 leading-relaxed text-xs md:text-sm bg-black/50 p-4 rounded-xl border border-slate-800 max-h-[600px] overflow-y-auto"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('auditForm');
+        const urlInput = document.getElementById('urlInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const resultPanel = document.getElementById('resultPanel');
+        const outputTarget = document.getElementById('outputTarget');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const urlValue = urlInput.value.trim();
+            if (!urlValue) return;
+
+            // Tugmani bloklaymiz va yuklanish rejimiga o'tkazamiz
+            submitBtn.disabled = true;
+            urlInput.disabled = true;
+            btnText.innerHTML = `<span class="flex items-center justify-center gap-2"><span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>Audit qilinmoqda...</span>`;
+            
+            // Panelni tozalab, ko'rinadigan qilamiz
+            outputTarget.textContent = '';
+            resultPanel.classList.remove('hidden');
+
+            // URL formatini to'g'rilaymiz
+            let cleanUrl = urlValue;
+            if (!/^https?:\/\//i.test(cleanUrl)) {
+                cleanUrl = 'https://' + cleanUrl;
+            }
+
+            // Jonli Render backend endpointingizga ulanamiz
+            const backendUrl = `https://vdx-saas.onrender.com/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`;
+            const eventSource = new EventSource(backendUrl);
+
+            // Har bir matn bo'lagi kelganda terminalga qo'shib boradi
+            eventSource.onmessage = function(event) {
+                outputTarget.textContent += event.data + '\n';
+                // Avtomatik ravishda terminal pastiga skroll qilish
+                outputTarget.scrollTop = outputTarget.scrollHeight;
+            };
+
+            // Tugaganda yoki xato bo'lganda aloqani uzish
+            eventSource.onerror = function(err) {
+                console.log("Oqim yakunlandi.");
+                eventSource.close();
+                submitBtn.disabled = false;
+                urlInput.disabled = false;
+                btnText.textContent = 'Auditni boshlash';
+            };
+        });
+    </script>
+</body>
+</html>
