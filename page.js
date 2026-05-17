@@ -13,15 +13,20 @@ export default function Home() {
     setLoading(true);
     setResult('');
 
-    // Tozalangan URL manzilini tayyorlaymiz (protsessual xatoliklarni oldini olish uchun)
-    let cleanUrl = url.replace(/^(https?:\/\/)?(www\.)?/, '');
+    // URL'ni tekshiramiz: agar foydalanuvchi http/https yozmagan bo'lsa, avtomatik qo'shamiz
+    let cleanUrl = url.trim();
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      cleanUrl = 'https://' + cleanUrl;
+    }
 
-    // Backendning SSE endpointiga ulanamiz
-    const eventSource = new EventSource(`http://localhost:8000/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`);
+    // 🚀 localhost o'rniga Render'dagi jonli backend manzilingiz o'rnatildi
+    const backendUrl = `https://vdx-saas.onrender.com/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`;
+    const eventSource = new EventSource(backendUrl);
 
     eventSource.onmessage = (event) => {
       // Kelayotgan ma'lumot bo'laklarini yig'ib boramiz (Streaming effekti)
-      setResult((prev) => prev + event.data);
+      // Ba'zan backend 'data: \n' yuborsa, ortiqcha joy tashlamasligi uchun formatlaymiz
+      setResult((prev) => prev + event.data + '\n');
     };
 
     eventSource.onerror = (err) => {
@@ -32,7 +37,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500 selection:text-slate-900">
+    <main className="min-h-screen bg-slate-950 text-white font-sans selection:bg-cyan-500 selection:text-slate-900 relative">
       {/* Orqa fon uchun chiroyli kiber-effekt bezaklari */}
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.15),transparent_50%)] pointer-events-none" />
 
@@ -53,13 +58,12 @@ export default function Home() {
         {/* URL kiritish shakli */}
         <form onSubmit={startAudit} className="bg-slate-900/60 backdrop-blur-md p-4 border border-slate-800 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-3 mb-10">
           <div className="flex-1 relative">
-            <span className="absolute left-4 top-3.5 text-slate-500 font-mono text-sm">https://</span>
             <input
               type="text"
-              placeholder="mysite.uz"
+              placeholder="Masalan: google.com yoki https://example.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="w-full pl-18 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono transition-colors"
+              className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono transition-colors"
               disabled={loading}
               required
             />
@@ -83,14 +87,14 @@ export default function Home() {
           <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
             <div className="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-500 animate-pulse" />
+                <span className="w-3 h-3 rounded-full bg-cyan-500 animate-pulse" />
                 <span className="font-mono text-xs text-slate-400 uppercase tracking-wider">Live System Output</span>
               </div>
-              <span className="text-xs text-cyan-400 font-mono">Gemini 1.5 Flash</span>
+              <span className="text-xs text-cyan-400 font-mono">Gemini 2.5 Flash</span>
             </div>
-            <div className="p-6 md:p-8 prose prose-invert max-w-none">
-              {/* Natija xuddi terminaldek chiroyli chiqishi uchun pre-wrap qilinadi */}
-              <pre className="whitespace-pre-wrap font-sans text-slate-200 leading-relaxed text-sm md:text-base">
+            <div className="p-6 md:p-8 max-w-none">
+              {/* Natija terminal uslubida chiqishi uchun */}
+              <pre className="whitespace-pre-wrap font-mono text-slate-200 leading-relaxed text-xs md:text-sm bg-black/50 p-4 rounded-xl border border-slate-800 max-h-[600px] overflow-y-auto">
                 {result}
               </pre>
             </div>
@@ -99,4 +103,5 @@ export default function Home() {
       </div>
     </main>
   );
-}
+    }
+    
