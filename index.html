@@ -24,7 +24,7 @@
         <div class="flex gap-4 items-center font-mono text-sm">
             <span id="userBadge" class="hidden text-teal-400 border border-teal-500/30 bg-teal-950/40 px-3 py-1 rounded-xl"></span>
             <button id="logoutBtn" class="hidden text-red-400 hover:underline cursor-pointer">Chiqish</button>
-            <button id="authModalBtn" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-cyan-400 transition-colors cursor-pointer">
+            <button id="authModalBtn" type="button" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-cyan-400 transition-colors cursor-pointer relative z-30">
                 Kirish / Ro'yxatdan o'tish
             </button>
         </div>
@@ -108,7 +108,7 @@
         </div>
     </div>
 
-    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-fade-in">
             <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl cursor-pointer">&times;</button>
             
@@ -150,201 +150,187 @@
     <script>
         const BACKEND_URL = "https://vdx-saas.onrender.com";
 
-        // UI Elementlari
-        const form = document.getElementById('auditForm');
-        const urlInput = document.getElementById('urlInput');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const resultPanel = document.getElementById('resultPanel');
-        const outputTarget = document.getElementById('outputTarget');
-        const statusDot = document.getElementById('statusDot');
+        document.addEventListener("DOMContentLoaded", () => {
+            // UI Elementlari
+            const form = document.getElementById('auditForm');
+            const urlInput = document.getElementById('urlInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const resultPanel = document.getElementById('resultPanel');
+            const outputTarget = document.getElementById('outputTarget');
+            const statusDot = document.getElementById('statusDot');
 
-        // Auth Oynasi Elementlari
-        const authModal = document.getElementById('authModal');
-        const authModalBtn = document.getElementById('authModalBtn');
-        const closeModal = document.getElementById('closeModal');
-        const tabLogin = document.getElementById('tabLogin');
-        const tabRegister = document.getElementById('tabRegister');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const userBadge = document.getElementById('userBadge');
-        const logoutBtn = document.getElementById('logoutBtn');
+            // Auth Oynasi Elementlari
+            const authModal = document.getElementById('authModal');
+            const authModalBtn = document.getElementById('authModalBtn');
+            const closeModal = document.getElementById('closeModal');
+            const tabLogin = document.getElementById('tabLogin');
+            const tabRegister = document.getElementById('tabRegister');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const userBadge = document.getElementById('userBadge');
+            const logoutBtn = document.getElementById('logoutBtn');
 
-        // Seansni yuklash
-        let currentUserEmail = localStorage.getItem('user_email') || "";
-        let currentUserTier = localStorage.getItem('user_tier') || "free";
-        let currentUserName = localStorage.getItem('user_name') || "";
+            // Seans yuklash mantiqi
+            let currentUserEmail = localStorage.getItem('user_email') || "";
+            let currentUserTier = localStorage.getItem('user_tier') || "free";
+            let currentUserName = localStorage.getItem('user_name') || "";
 
-        function updateAuthUI() {
-            if (localStorage.getItem('user_email')) {
-                if(authModalBtn) authModalBtn.classList.add('hidden');
-                if(userBadge) {
-                    userBadge.textContent = `${currentUserName} (${currentUserTier.toUpperCase()})`;
-                    userBadge.classList.remove('hidden');
-                }
-                if(logoutBtn) logoutBtn.classList.remove('hidden');
-            } else {
-                if(authModalBtn) authModalBtn.classList.remove('hidden');
-                if(userBadge) userBadge.classList.add('hidden');
-                if(logoutBtn) logoutBtn.classList.add('hidden');
-            }
-        }
-        updateAuthUI();
-
-        // Modallarni ochish mexanizmi
-        if(authModalBtn) {
-            authModalBtn.addEventListener('click', function() {
-                authModal.classList.remove('hidden');
-            });
-        }
-        if(closeModal) {
-            closeModal.onclick = () => authModal.classList.add('hidden');
-        }
-        
-        if(tabLogin) {
-            tabLogin.onclick = () => {
-                tabLogin.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
-                tabRegister.className = "text-slate-400 pb-1 cursor-pointer";
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-            };
-        }
-        if(tabRegister) {
-            tabRegister.onclick = () => {
-                tabRegister.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
-                tabLogin.className = "text-slate-400 pb-1 cursor-pointer";
-                registerForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-            };
-        }
-
-        if(logoutBtn) {
-            logoutBtn.onclick = () => {
-                localStorage.clear();
-                currentUserEmail = "";
-                currentUserTier = "free";
-                currentUserName = "";
-                updateAuthUI();
-                alert('Tizimdan chiqdingiz.');
-            };
-        }
-
-        // 🔐 Tizimga kirish (Xavfsiz JSON POST)
-        if(loginForm) {
-            loginForm.onsubmit = async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value.trim();
-                const password = document.getElementById('loginPassword').value;
-                
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, password })
-                    });
-                    
-                    if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.detail || 'Email yoki parol xato!');
+            function updateAuthUI() {
+                if (localStorage.getItem('user_email')) {
+                    if(authModalBtn) authModalBtn.classList.add('hidden');
+                    if(userBadge) {
+                        userBadge.textContent = `${currentUserName} (${currentUserTier.toUpperCase()})`;
+                        userBadge.classList.remove('hidden');
                     }
-                    
-                    const data = await response.json();
-                    
-                    // JWT token va foydalanuvchini saqlash
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('user_email', data.user.email);
-                    localStorage.setItem('user_tier', data.user.tier);
-                    localStorage.setItem('user_name', data.user.username);
-                    
-                    currentUserEmail = data.user.email;
-                    currentUserTier = data.user.tier;
-                    currentUserName = data.user.username;
-                    
-                    updateAuthUI();
-                    authModal.classList.add('hidden');
-                    loginForm.reset();
-                    alert(`Xush kelibsiz, ${data.user.username}!`);
-                } catch (err) {
-                    alert("Xatolik: " + err.message);
+                    if(logoutBtn) logoutBtn.classList.remove('hidden');
+                } else {
+                    if(authModalBtn) authModalBtn.classList.remove('hidden');
+                    if(userBadge) userBadge.classList.add('hidden');
+                    if(logoutBtn) logoutBtn.classList.add('hidden');
                 }
-            };
-        }
-
-        // 📝 Ro'yxatdan o'tish (Xavfsiz JSON POST)
-        if(registerForm) {
-            registerForm.onsubmit = async (e) => {
-                e.preventDefault();
-                const username = document.getElementById('regUsername').value.trim();
-                const email = document.getElementById('regEmail').value.trim();
-                const password = document.getElementById('regPassword').value;
-                
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, email, password })
-                    });
-                    
-                    if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.detail || 'Xatolik yuz berdi.');
-                    }
-                    
-                    alert('Muvaffaqiyatli hisob yaratildi! Endi kirishingiz mumkin.');
-                    registerForm.reset();
-                    tabLogin.click();
-                } catch (err) {
-                    alert("Xatolik: " + err.message);
-                }
-            };
-        }
-
-        // 💳 Tarif sotib olish (Billing Checkout API)
-        async function buyPlan(plan, provider) {
-            if (!localStorage.getItem('user_email')) {
-                alert('To\'lov qilishdan oldin hisobingizga kiring!');
-                authModal.classList.remove('hidden');
-                return;
             }
-            try {
-                const token = localStorage.getItem('access_token');
-                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?email=${encodeURIComponent(currentUserEmail)}&plan=${plan}&provider=${provider}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+            updateAuthUI();
+
+            // 🌟 Modalni ochish va yopish mexanizmi (Kafolatlangan Click)
+            if(authModalBtn && authModal) {
+                authModalBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    authModal.classList.remove('hidden');
+                    authModal.style.display = 'flex';
                 });
-                if (!response.ok) throw new Error('Invoys yaratishda xatolik yuz berdi.');
-                const data = await response.json();
-                if (data.payment_url) {
-                    window.location.href = data.payment_url;
-                }
-            } catch (err) {
-                alert("To'lov xatosi: " + err.message);
             }
-        }
 
-        // 🚨 REAL TIME SSE AUDIT SKANERLASH
-        if(form) {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const urlValue = urlInput.value.trim();
-                if (!urlValue) return;
+            if(closeModal && authModal) {
+                closeModal.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    authModal.classList.add('hidden');
+                    authModal.style.display = 'none';
+                });
+            }
+            
+            // Tablarni almashtirish
+            if(tabLogin) {
+                tabLogin.onclick = () => {
+                    tabLogin.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
+                    tabRegister.className = "text-slate-400 pb-1 cursor-pointer";
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                };
+            }
+            if(tabRegister) {
+                tabRegister.onclick = () => {
+                    tabRegister.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
+                    tabLogin.className = "text-slate-400 pb-1 cursor-pointer";
+                    registerForm.classList.remove('hidden');
+                    loginForm.classList.add('hidden');
+                };
+            }
 
-                submitBtn.disabled = true;
-                urlInput.disabled = true;
-                btnText.innerHTML = `<span class="flex items-center justify-center gap-2"><span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>Audit qilinmoqda...</span>`;
-                
-                outputTarget.textContent = 'Tizim tayyorlanmoqda... \n';
-                resultPanel.classList.remove('hidden');
-                statusDot.className = "w-3 h-3 rounded-full bg-cyan-500 animate-pulse";
+            // Tizimdan chiqish
+            if(logoutBtn) {
+                logoutBtn.onclick = () => {
+                    localStorage.clear();
+                    currentUserEmail = "";
+                    currentUserTier = "free";
+                    currentUserName = "";
+                    updateAuthUI();
+                    alert('Tizimdan chiqdingiz.');
+                };
+            }
 
-                let cleanUrl = urlValue;
-                if (!/^https?:\/\//i.test(cleanUrl)) {
-                    cleanUrl = 'https://' + cleanUrl;
-                }
+            // 🔐 Tizimga kirish (Xavfsiz JSON POST)
+            if(loginForm) {
+                loginForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('loginEmail').value.trim();
+                    const password = document.getElementById('loginPassword').value;
+                    
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+                        
+                        if (!response.ok) {
+                            const errData = await response.json();
+                            throw new Error(errData.detail || 'Email yoki parol xato!');
+                        }
+                        
+                        const data = await response.json();
+                        
+                        // Ma'lumotlarni saqlash
+                        localStorage.setItem('access_token', data.access_token);
+                        localStorage.setItem('user_email', data.user.email);
+                        localStorage.setItem('user_tier', data.user.tier);
+                        localStorage.setItem('user_name', data.user.username);
+                        
+                        currentUserEmail = data.user.email;
+                        currentUserTier = data.user.tier;
+                        currentUserName = data.user.username;
+                        
+                        updateAuthUI();
+                        authModal.classList.add('hidden');
+                        authModal.style.display = 'none';
+                        loginForm.reset();
+                        alert(`Xush kelibsiz, ${data.user.username}!`);
+                    } catch (err) {
+                        alert("Xatolik: " + err.message);
+                    }
+                };
+            }
 
-                // Agar foydalanuvchi kirgan bo'lsa token yuborish logikasi uchun tayyorgarlik
-                const emailToSend = currentUserEmail || "guest@vdx.uz";
-                const backendUrl = `${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(emailToSend)}`;
-                const eventSource = new EventSource(backendUrl);
+            // 📝 Ro'yxatdan o'tish (Xavfsiz JSON POST)
+            if(registerForm) {
+                registerForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const username = document.getElementById('regUsername').value.trim();
+                    const email = document.getElementById('regEmail').value.trim();
+                    const password = document.getElementById('regPassword').value;
+                    
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username, email, password })
+                        });
+                        
+                        if (!response.ok) {
+                            const errData = await response.json();
+                            throw new Error(errData.detail || 'Xatolik yuz berdi.');
+                        }
+                        
+                        alert('Muvaffaqiyatli hisob yaratildi! Endi tizimga kirishingiz mumkin.');
+                        registerForm.reset();
+                        tabLogin.click();
+                    } catch (err) {
+                        alert("Xatolik: " + err.message);
+                    }
+                };
+            }
 
-                eventSour
+            // 🚨 REAL TIME SSE AUDIT SKANERLASH
+            if(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const urlValue = urlInput.value.trim();
+                    if (!urlValue) return;
+
+                    submitBtn.disabled = true;
+                    urlInput.disabled = true;
+                    btnText.innerHTML = `<span class="flex items-center justify-center gap-2"><span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>Audit qilinmoqda...</span>`;
+                    
+                    outputTarget.textContent = 'Tizim tayyorlanmoqda... \n';
+                    resultPanel.classList.remove('hidden');
+                    statusDot.className = "w-3 h-3 rounded-full bg-cyan-500 animate-pulse";
+
+                    let cleanUrl = urlValue;
+                    if (!/^https?:\/\//i.test(cleanUrl)) {
+                        cleanUrl = 'https://' + cleanUrl;
+                    }
+
+                    const emailToSend = currentUserEmail || "guest@vdx.uz";
+                    const backendUrl = `${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(emailToSend)}`;
+                    const eventSourc
