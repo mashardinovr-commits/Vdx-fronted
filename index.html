@@ -52,7 +52,7 @@
         <div id="resultPanel" class="hidden bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
             <div class="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="w-3 h-3 rounded-full bg-cyan-500 animate-pulse"></span>
+                    <span id="statusDot" class="w-3 h-3 rounded-full bg-cyan-500 animate-pulse"></span>
                     <span class="font-mono text-xs text-slate-400 uppercase tracking-wider">Live System Output</span>
                 </div>
                 <span class="text-xs text-cyan-400 font-mono">Gemini 2.5 Flash</span>
@@ -70,45 +70,48 @@
         const btnText = document.getElementById('btnText');
         const resultPanel = document.getElementById('resultPanel');
         const outputTarget = document.getElementById('outputTarget');
+        const statusDot = document.getElementById('statusDot');
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const urlValue = urlInput.value.trim();
             if (!urlValue) return;
 
-            // Tugmani bloklaymiz va yuklanish rejimiga o'tkazamiz
             submitBtn.disabled = true;
             urlInput.disabled = true;
             btnText.innerHTML = `<span class="flex items-center justify-center gap-2"><span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>Audit qilinmoqda...</span>`;
             
-            // Panelni tozalab, ko'rinadigan qilamiz
-            outputTarget.textContent = '';
+            outputTarget.textContent = 'Tizim tayyorlanmoqda... \n';
             resultPanel.classList.remove('hidden');
+            statusDot.className = "w-3 h-3 rounded-full bg-cyan-500 animate-pulse";
 
-            // URL formatini to'g'rilaymiz
             let cleanUrl = urlValue;
             if (!/^https?:\/\//i.test(cleanUrl)) {
                 cleanUrl = 'https://' + cleanUrl;
             }
 
-            // Jonli Render backend endpointingizga ulanamiz
-            const backendUrl = `https://vdx-saas.onrender.com/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`;
+            // DIQQAT: Agarda Render'dagi backend domeni nomi boshqacha bo'lsa, pastdagi manzilni almashtiring
+            const backendDomain = "https://vdx-saas.onrender.com"; 
+            const backendUrl = `${backendDomain}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`;
+            
             const eventSource = new EventSource(backendUrl);
 
-            // Har bir matn bo'lagi kelganda terminalga qo'shib boradi
             eventSource.onmessage = function(event) {
+                // Agar eski matn o'rniga yangisi qo'shilayotgan bo'lsa, tozalaymiz
+                if (outputTarget.textContent === 'Tizim tayyorlanmoqda... \n') {
+                    outputTarget.textContent = '';
+                }
                 outputTarget.textContent += event.data + '\n';
-                // Avtomatik ravishda terminal pastiga skroll qilish
                 outputTarget.scrollTop = outputTarget.scrollHeight;
             };
 
-            // Tugaganda yoki xato bo'lganda aloqani uzish
             eventSource.onerror = function(err) {
-                console.log("Oqim yakunlandi.");
+                console.log("Oqim holati o'zgardi yoki yakunlandi.");
                 eventSource.close();
                 submitBtn.disabled = false;
                 urlInput.disabled = false;
                 btnText.textContent = 'Auditni boshlash';
+                statusDot.className = "w-3 h-3 rounded-full bg-green-500"; // Tugaganini bildirish uchun yashil rang
             };
         });
     </script>
