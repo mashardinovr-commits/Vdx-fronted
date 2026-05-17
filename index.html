@@ -88,8 +88,8 @@
                         <p class="text-slate-400 text-sm mb-6">OWASP Top 10 chuqur tahlili va real vaqtda server tuzatish kodlari (patches).</p>
                     </div>
                     <div class="flex flex-col gap-2">
-                        <button onclick="buyPlan('pro', 'click')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Click orqali sotib olish</button>
-                        <button onclick="buyPlan('pro', 'payme')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Payme orqali sotib olish</button>
+                        <button type="button" onclick="buyPlan('pro', 'click')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer relative z-10">Click orqali sotib olish</button>
+                        <button type="button" onclick="buyPlan('pro', 'payme')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer relative z-10">Payme orqali sotib olish</button>
                     </div>
                 </div>
                 <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-teal-500/50 transition-colors relative overflow-hidden">
@@ -100,21 +100,21 @@
                         <p class="text-slate-400 text-sm mb-6">Subdomenlar tahlili, yashirin fayllar skaneri va to'liq limitsiz chuqur audit.</p>
                     </div>
                     <div class="flex flex-col gap-2">
-                        <button onclick="buyPlan('enterprise', 'click')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Click orqali sotib olish</button>
-                        <button onclick="buyPlan('enterprise', 'payme')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Payme orqali sotib olish</button>
+                        <button type="button" onclick="buyPlan('enterprise', 'click')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer relative z-10">Click orqali sotib olish</button>
+                        <button type="button" onclick="buyPlan('enterprise', 'payme')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer relative z-10">Payme orqali sotib olish</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
+    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-fade-in">
-            <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl cursor-pointer">&times;</button>
+            <button id="closeModal" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl cursor-pointer z-50">&times;</button>
             
             <div class="flex justify-center gap-4 border-b border-slate-800 pb-3 mb-6 font-mono text-sm">
-                <button id="tabLogin" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer">Tizimga kirish</button>
-                <button id="tabRegister" class="text-slate-400 pb-1 cursor-pointer">Ro'yxatdan o'tish</button>
+                <button id="tabLogin" type="button" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer">Tizimga kirish</button>
+                <button id="tabRegister" type="button" class="text-slate-400 pb-1 cursor-pointer">Ro'yxatdan o'tish</button>
             </div>
 
             <form id="loginForm" class="flex flex-col gap-4">
@@ -150,8 +150,33 @@
     <script>
         const BACKEND_URL = "https://vdx-saas.onrender.com";
 
+        // Global funksiya (Xatolik butunlay yo'qoldi)
+        async function buyPlan(plan, provider) {
+            const email = localStorage.getItem('user_email');
+            if (!email) {
+                alert('To\'lov qilishdan oldin hisobingizga kiring!');
+                const authModal = document.getElementById('authModal');
+                if(authModal) authModal.classList.remove('hidden');
+                return;
+            }
+            try {
+                const token = localStorage.getItem('access_token');
+                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?email=${encodeURIComponent(email)}&plan=${plan}&provider=${provider}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Invoys yaratishda xatolik yuz berdi.');
+                const data = await response.json();
+                if (data.payment_url) {
+                    window.location.href = data.payment_url;
+                }
+            } catch (err) {
+                alert("To'lov xatosi: " + err.message);
+            }
+        }
+
+        // Sahifa yuklangandagi logikalar
         document.addEventListener("DOMContentLoaded", () => {
-            // UI Elementlari
             const form = document.getElementById('auditForm');
             const urlInput = document.getElementById('urlInput');
             const submitBtn = document.getElementById('submitBtn');
@@ -160,7 +185,6 @@
             const outputTarget = document.getElementById('outputTarget');
             const statusDot = document.getElementById('statusDot');
 
-            // Auth Oynasi Elementlari
             const authModal = document.getElementById('authModal');
             const authModalBtn = document.getElementById('authModalBtn');
             const closeModal = document.getElementById('closeModal');
@@ -171,16 +195,11 @@
             const userBadge = document.getElementById('userBadge');
             const logoutBtn = document.getElementById('logoutBtn');
 
-            // Seans yuklash mantiqi
-            let currentUserEmail = localStorage.getItem('user_email') || "";
-            let currentUserTier = localStorage.getItem('user_tier') || "free";
-            let currentUserName = localStorage.getItem('user_name') || "";
-
             function updateAuthUI() {
                 if (localStorage.getItem('user_email')) {
                     if(authModalBtn) authModalBtn.classList.add('hidden');
                     if(userBadge) {
-                        userBadge.textContent = `${currentUserName} (${currentUserTier.toUpperCase()})`;
+                        userBadge.textContent = `${localStorage.getItem('user_name')} (${localStorage.getItem('user_tier').toUpperCase()})`;
                         userBadge.classList.remove('hidden');
                     }
                     if(logoutBtn) logoutBtn.classList.remove('hidden');
@@ -192,25 +211,18 @@
             }
             updateAuthUI();
 
-            // 🌟 Modalni ochish va yopish mexanizmi (Kafolatlangan Click)
-            if(authModalBtn && authModal) {
-                authModalBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
+            if(authModalBtn) {
+                authModalBtn.addEventListener('click', () => {
                     authModal.classList.remove('hidden');
-                    authModal.style.display = 'flex';
                 });
             }
 
-            if(closeModal && authModal) {
-                closeModal.addEventListener('click', (e) => {
-                    e.preventDefault();
+            if(closeModal) {
+                closeModal.addEventListener('click', () => {
                     authModal.classList.add('hidden');
-                    authModal.style.display = 'none';
                 });
             }
             
-            // Tablarni almashtirish
             if(tabLogin) {
                 tabLogin.onclick = () => {
                     tabLogin.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
@@ -228,19 +240,15 @@
                 };
             }
 
-            // Tizimdan chiqish
             if(logoutBtn) {
                 logoutBtn.onclick = () => {
                     localStorage.clear();
-                    currentUserEmail = "";
-                    currentUserTier = "free";
-                    currentUserName = "";
                     updateAuthUI();
                     alert('Tizimdan chiqdingiz.');
                 };
             }
 
-            // 🔐 Tizimga kirish (Xavfsiz JSON POST)
+            // LOGIN SO'ROVI
             if(loginForm) {
                 loginForm.onsubmit = async (e) => {
                     e.preventDefault();
@@ -260,20 +268,13 @@
                         }
                         
                         const data = await response.json();
-                        
-                        // Ma'lumotlarni saqlash
                         localStorage.setItem('access_token', data.access_token);
                         localStorage.setItem('user_email', data.user.email);
                         localStorage.setItem('user_tier', data.user.tier);
                         localStorage.setItem('user_name', data.user.username);
                         
-                        currentUserEmail = data.user.email;
-                        currentUserTier = data.user.tier;
-                        currentUserName = data.user.username;
-                        
                         updateAuthUI();
                         authModal.classList.add('hidden');
-                        authModal.style.display = 'none';
                         loginForm.reset();
                         alert(`Xush kelibsiz, ${data.user.username}!`);
                     } catch (err) {
@@ -282,7 +283,7 @@
                 };
             }
 
-            // 📝 Ro'yxatdan o'tish (Xavfsiz JSON POST)
+            // REGISTER SO'ROVI
             if(registerForm) {
                 registerForm.onsubmit = async (e) => {
                     e.preventDefault();
@@ -302,7 +303,7 @@
                             throw new Error(errData.detail || 'Xatolik yuz berdi.');
                         }
                         
-                        alert('Muvaffaqiyatli hisob yaratildi! Endi tizimga kirishingiz mumkin.');
+                        alert('Muvaffaqiyatli roʻyxatdan oʻtdingiz! Endi kirishingiz mumkin.');
                         registerForm.reset();
                         tabLogin.click();
                     } catch (err) {
@@ -311,7 +312,7 @@
                 };
             }
 
-            // 🚨 REAL TIME SSE AUDIT SKANERLASH
+            // SSE AUDIT LOGIKASI
             if(form) {
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
@@ -331,6 +332,5 @@
                         cleanUrl = 'https://' + cleanUrl;
                     }
 
-                    const emailToSend = currentUserEmail || "guest@vdx.uz";
-                    const backendUrl = `${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(emailToSend)}`;
-                    const eventSourc
+                    const emailToSend = localStorage.getItem('user_email') || "guest@vdx.uz";
+                    const backendUrl = `${BACKEND_URL}/ap
