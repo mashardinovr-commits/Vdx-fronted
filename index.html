@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uz" class="dark">
 <head>
@@ -5,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VDX AI // Cyber Security Enterprise Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PDF yaratish uchun html2pdf kutubxonasi -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
@@ -20,9 +19,14 @@
         }
 
         .cyber-glow {
-            box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
         }
 
+        .terminal-glow {
+            box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Markdown Parser elementlari visual dizayni */
         pre { 
             background: #020617 !important; 
             padding: 16px; 
@@ -43,7 +47,7 @@
             font-size: 0.8rem; 
         }
         h2 { 
-            font-size: 1.3rem; 
+            font-size: 1.35rem; 
             font-weight: 700; 
             color: #3b82f6 !important; 
             margin-top: 24px; 
@@ -76,22 +80,22 @@
                         VDX AI <span class="text-blue-500">//</span> CYBER SUITE
                     </h1>
                 </div>
-                <p class="text-gray-300 text-xs md:text-sm mt-2 font-medium">B2B Korporativ Kiberxavfsizlik va Avtomatlashtirilgan Audit Tizimi</p>
+                <p class="text-gray-300 text-xs md:text-sm mt-2 font-medium">B2B Avtomatlashtirilgan OWASP Top 10 Audit & Vulnerability Scanner</p>
             </div>
             <div>
                 <span class="bg-blue-950 text-blue-300 text-xs font-bold px-3.5 py-2 rounded-lg border border-blue-800 tracking-wider">
-                    ENTERPRISE PRO v3.0
+                    ENTERPRISE v4.0 PRO
                 </span>
             </div>
         </div>
 
         <!-- Input Box -->
         <div class="bg-[#0b0f19] rounded-2xl p-6 md:p-8 mb-8 border border-gray-800 cyber-glow">
-            <label class="block text-xs font-bold uppercase text-gray-300 tracking-wider mb-3">Audit qilinadigan korporativ veb-sayt (URL):</label>
+            <label class="block text-xs font-bold uppercase text-gray-400 tracking-wider mb-3">Audit qilinadigan korporativ veb-sayt (URL):</label>
             <div class="flex flex-col md:flex-row gap-4">
                 <input type="text" id="targetUrl" placeholder="https://bank yoki kompaniya sayti.uz" 
                        class="flex-1 bg-[#070a13] border border-gray-700 rounded-xl px-5 py-3.5 text-white text-base focus:outline-none focus:border-blue-500 transition duration-300">
-                <button onclick="launchAuditWithRetry()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-3.5 rounded-xl transition duration-200 transform active:scale-95 shadow-lg shadow-blue-600/20 text-base">
+                <button onclick="startAdvancedAudit()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-3.5 rounded-xl transition duration-200 transform active:scale-95 shadow-lg shadow-blue-600/20 text-base">
                     Auditni Boshlash
                 </button>
             </div>
@@ -101,16 +105,19 @@
         <div id="customModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
             <div class="bg-[#0f172a] border border-gray-800 rounded-2xl max-w-md w-full p-6 text-center cyber-glow">
                 <div class="text-rose-500 text-4xl mb-3">⚠️</div>
-                <h3 class="text-lg font-bold text-white mb-2" id="modalTitle">Ulanish xatosi</h3>
+                <h3 class="text-lg font-bold text-white mb-2" id="modalTitle">Xatolik</h3>
                 <p class="text-gray-400 text-sm mb-6" id="modalText"></p>
                 <button onclick="closeModal()" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg transition">Yopish</button>
             </div>
         </div>
 
-        <!-- Loader & Retry Status -->
-        <div id="loader" class="hidden text-center my-16">
-            <div class="animate-spin inline-block w-10 h-10 border-[3px] border-blue-500 border-t-transparent rounded-full mb-4"></div>
-            <p id="loaderText" class="text-blue-400 text-sm animate-pulse font-medium">Infratuzilma zaifliklari va ochiq ma'lumotlar tahlil qilinmoqda...</p>
+        <!-- Skanerlash Simulyatsiya Konsoli (Premium Cyber Terminal) -->
+        <div id="terminalConsole" class="hidden bg-[#020617] border border-emerald-500/20 rounded-2xl p-6 mb-8 font-mono text-sm text-emerald-400 terminal-glow">
+            <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20 mb-4 text-xs text-emerald-500/60 uppercase">
+                <span>⚡ Cyber Audit Simulation console</span>
+                <span id="terminalStatus">Ishlamoqda...</span>
+            </div>
+            <div id="terminalLogs" class="space-y-1.5 min-h-[150px] max-h-[300px] overflow-y-auto"></div>
         </div>
 
         <!-- Results Dashboard -->
@@ -127,11 +134,11 @@
                     <span id="cmsStatus" class="text-sm font-bold text-white"></span>
                 </div>
                 <div class="bg-[#0b0f19] p-5 rounded-xl border border-gray-800 border-l-4 border-l-amber-500">
-                    <span class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider mb-1">Ochiq Tarmoq Portlari:</span>
-                    <span id="portsStatus" class="text-sm font-bold text-amber-400 block truncate"></span>
+                    <span class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider mb-1">DMARC & SPF (Email):</span>
+                    <span id="dnsStatus" class="text-sm font-bold text-amber-400 block truncate"></span>
                 </div>
                 <div class="bg-[#0b0f19] p-5 rounded-xl border border-gray-800 border-l-4 border-l-rose-500">
-                    <span class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider mb-1">Xavfsizlik Reytingi:</span>
+                    <span class="text-[10px] font-bold text-gray-400 block uppercase tracking-wider mb-1">Xavfsizlik Balli:</span>
                     <div class="flex items-baseline gap-2">
                         <span id="scoreBadge" class="text-lg font-extrabold text-white"></span>
                         <span id="ratingText" class="text-xs text-gray-400 font-semibold"></span>
@@ -139,45 +146,20 @@
                 </div>
             </div>
 
-            <!-- CHUQUR AI TAHLILI -->
-            <div class="bg-[#0b0f19] p-6 md:p-8 rounded-xl border border-gray-800">
-                <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 mb-6 flex items-center gap-2">
-                    <span>🛡️</span> Ekspert AI Tahlili va Kompaniyaning Himoya Yo'riqnomasi
-                </h3>
-                <div id="aiReportText" class="text-gray-300 text-sm leading-relaxed space-y-4"></div>
-            </div>
-
-            <!-- PDF GENERATOR HIDDEN BOX -->
-            <div id="hiddenPdfTemplate" style="display: none;">
-                <div style="font-family: Arial, sans-serif; color: #111111; padding: 40px; background: #ffffff;">
-                    <div style="border-bottom: 3px solid #1a365d; padding-bottom: 15px; margin-bottom: 25px;">
-                        <h1 style="font-size: 24px; color: #1a365d; margin: 0; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">VDX AI // DIGITAL CYBER AUDIT REPORT</h1>
-                        <p style="font-size: 12px; color: #4a5568; margin: 8px 0 0 0;" id="pdfMetaTarget"></p>
-                    </div>
-                    
-                    <h3 style="font-size: 15px; color: #2c5282; margin-top: 20px; border-bottom: 2px solid #cbd5e0; padding-bottom: 5px; text-transform: uppercase; font-weight: bold;">1. INFRATUZILMA AUDIT NATIJALARI</h3>
-                    <table style="width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px;">
-                        <tr style="background: #f7fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold; width: 35%;">Xavfsizlik Reytingi:</td><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;" id="pdfScore"></td></tr>
-                        <tr><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">SSL / TLS Shifrlash:</td><td style="padding: 10px; border: 1px solid #e2e8f0;" id="pdfSsl"></td></tr>
-                        <tr style="background: #f7fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">CMS & Server:</td><td style="padding: 10px; border: 1px solid #e2e8f0;" id="pdfCms"></td></tr>
-                        <tr><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Ochiq Portlar:</td><td style="padding: 10px; border: 1px solid #e2e8f0;" id="pdfPorts"></td></tr>
-                        <tr style="background: #f7fafc;"><td style="padding: 10px; border: 1px solid #e2e8f0; font-weight: bold;">Sizib chiqqan maxfiy fayllar:</td><td style="padding: 10px; border: 1px solid #e2e8f0; color: #c53030;" id="pdfLeaks"></td></tr>
-                    </table>
-
-                    <h3 style="font-size: 15px; color: #2c5282; margin-top: 30px; border-bottom: 2px solid #cbd5e0; padding-bottom: 5px; text-transform: uppercase; font-weight: bold;">2. CHUQUR AI EKSPERTIZASI VA TAVSIYALAR REJASI</h3>
-                    <div id="pdfAiContent" style="font-size: 12px; color: #2d3748; line-height: 1.6; margin-top: 15px;"></div>
-                    
-                    <div style="margin-top: 40px; border-top: 1px dashed #cbd5e0; padding-top: 15px; text-align: center; font-size: 9px; color: #a0aec0;">
-                        Ushbu hujjat VDX AI xavfsizlik platformasi tomonidan avtomatik generatsiya qilingan. Korporativ maxfiylik standartlariga amal qiling.
-                    </div>
+            <!-- INTERAKTIV OWASP TOP 10 CARD REYTINGI -->
+            <div class="bg-[#0b0f19] p-6 rounded-xl border border-gray-800">
+                <h3 class="text-base font-bold text-white mb-4 uppercase tracking-wider border-b border-gray-800 pb-2">🛡️ OWASP TOP 10 XAVFSZLIK MATRITSASI:</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="owaspGrid">
+                    <!-- Dinamik ravishda JS orqali to'ldiriladi -->
                 </div>
             </div>
 
-            <!-- PDF Action Button -->
-            <div class="flex justify-end">
-                <button onclick="downloadPerfectPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3.5 rounded-xl transition duration-200 transform active:scale-95 shadow-lg shadow-emerald-900/20 text-sm tracking-wide">
-                    📥 Rasmiy PDF Hisobotni Yuklash
-                </button>
+            <!-- CHUQUR AI TAHLILI -->
+            <div class="bg-[#0b0f19] p-6 md:p-8 rounded-xl border border-gray-800">
+                <h3 class="text-lg font-bold text-white border-b border-gray-800 pb-3 mb-6 flex items-center gap-2">
+                    <span>🧠</span> Ekspert AI Tahlili (Llama 3.3 Core Audits)
+                </h3>
+                <div id="aiReportText" class="text-gray-300 text-sm leading-relaxed space-y-4"></div>
             </div>
 
         </div>
@@ -186,6 +168,15 @@
     <script>
         const BACKEND_URL = "https://vdx-saas.onrender.com/api/audit"; 
 
+        const owaspLabels = {
+            "A01": "A01:2021-Broken Access Control (Ruxsatnomalar tizimi)",
+            "A02": "A02:2021-Cryptographic Failures (Shifrlash xatolari/SSL)",
+            "A03": "A03:2021-Injection (SQLi & XSS testlari)",
+            "A04": "A04:2021-Insecure Design (Yashirin endpoints/fayllar)",
+            "A05": "A05:2021-Security Misconfiguration (Noto'g'ri server konfiguratsiyasi)"
+        };
+
+        // Platforma parseriga xalaqit bermaslik uchun RegExp orqali Markdown formatlash
         function parseMarkdown(text) {
             if (!text) return "";
             let html = text
@@ -205,24 +196,6 @@
             return html;
         }
 
-        function parseMarkdownForPdf(text) {
-            if (!text) return "";
-            let html = text
-                .replace(/### (.*?)\n/g, '<h4 style="color:#2b6cb0; font-size:13px; margin:14px 0 6px 0; font-weight:bold;">$1</h4>')
-                .replace(/## (.*?)\n/g, '<h3 style="color:#1a365d; font-size:14px; margin:22px 0 8px 0; border-bottom:1px solid #e2e8f0; padding-bottom:4px; font-weight:bold;">$1</h3>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                .replace(/`([^`]+)`/g, '<code style="background:#f7fafc; color:#c53030; padding:2px 4px; border-radius:3px; font-size:11px; font-family:monospace;">$1</code>');
-            
-            const codeBlockPattern = new RegExp('\\`\\`\\`([\\s\\S]*?)\\`\\`\\s*', 'g');
-            html = html.replace(codeBlockPattern, '<pre style="background:#1a202c; color:#9ae6b4; padding:12px; border-radius:6px; font-size:11px; white-space:pre-wrap; font-family:monospace; margin:10px 0; border:1px solid #cbd5e0;">$1</pre>');
-            
-            html = html
-                .replace(/\* (.*?)\n/g, '<div style="margin-left:15px; margin-bottom:5px; color:#2d3748;">• $1</div>')
-                .replace(/- (.*?)\n/g, '<div style="margin-left:15px; margin-bottom:5px; color:#2d3748;">• $1</div>')
-                .replace(/\n/g, '<br>');
-            return html;
-        }
-
         function showModal(title, text) {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalText').innerText = text;
@@ -233,20 +206,63 @@
             document.getElementById('customModal').classList.add('hidden');
         }
 
-        async function launchAuditWithRetry(retryCount = 0) {
+        // Konsolga chiziq yozish logikasi (Slick Hacker Effect)
+        function writeToTerminal(message, isHeader = false) {
+            const container = document.getElementById('terminalLogs');
+            const logEntry = document.createElement('div');
+            logEntry.className = isHeader ? "text-blue-400 font-bold mt-2" : "text-emerald-400";
+            logEntry.innerText = `> ${message}`;
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function startAdvancedAudit() {
             const urlInput = document.getElementById('targetUrl').value;
-            const loader = document.getElementById('loader');
-            const loaderText = document.getElementById('loaderText');
+            const terminal = document.getElementById('terminalConsole');
+            const terminalLogs = document.getElementById('terminalLogs');
             const dashboard = document.getElementById('dashboard');
 
             if(!urlInput) { showModal("Kirish xatosi", "Iltimos, kompaniya veb-sayti manzilini kiriting!"); return; }
 
-            if (retryCount === 0) {
-                loader.classList.remove('hidden');
-                dashboard.classList.add('hidden');
-                loaderText.innerText = "Infratuzilma zaifliklari tahlil qilinmoqda. Iltimos kuting...";
-            } else {
-                loaderText.innerText = `Render server uyg'onishi kutilmoqda (Urinish: ${retryCount}/5)...`;
+            terminal.classList.remove('hidden');
+            dashboard.classList.add('hidden');
+            terminalLogs.innerHTML = "";
+            document.getElementById('terminalStatus').innerText = "AUDIT BOSHLANDI";
+
+            // Skanerlash loglari simulyatsiyasi
+            const simSteps = [
+                { msg: "VDX AI Enterprise Engine yuklanmoqda...", delay: 200 },
+                { msg: `Nishon obyekt tekshiruv ostida: ${urlInput}`, delay: 600, isHeader: true },
+                { msg: "Dastlabki server pinging boshlandi...", delay: 1000 },
+                { msg: "Tarmoq portlari tekshirilmoqda [80, 443, 21, 22, 3306, 8080]...", delay: 1800 },
+                { msg: "SSL/TLS xavfsiz protokollari tahlili...", delay: 2500 },
+                { msg: "DNS SPF & DMARC kiber-hujum (Spoofing) xavfsizlik testlari...", delay: 3200 },
+                { msg: "OWASP A03-Injection (SQLi / Cross-Site Scripting) simulyatsiyasi...", delay: 4000, isHeader: true },
+                { msg: "Sezgir fayllar va ochiq ma'lumotlar tahlil qilinmoqda...", delay: 4800 },
+                { msg: "HTTP Security sarlavhalari matritsasini tekshirish...", delay: 5500 },
+                { msg: "Kiber-auditor natijalari yakuniy hisob-kitobga yo'naltirildi...", delay: 6200 },
+                { msg: "Sun'iy intellekt (Groq Llama 3.3 Engine) tahlilni boshlamoqda...", delay: 6800, isHeader: true }
+            ];
+
+            simSteps.forEach(step => {
+                setTimeout(() => {
+                    writeToTerminal(step.msg, step.isHeader);
+                }, step.delay);
+            });
+
+            // Skanerlashni faollashtirish
+            setTimeout(() => {
+                triggerRealAudit(urlInput, 0);
+            }, 7200);
+        }
+
+        async function triggerRealAudit(urlInput, retryCount = 0) {
+            const terminalStatus = document.getElementById('terminalStatus');
+            const terminal = document.getElementById('terminalConsole');
+            const dashboard = document.getElementById('dashboard');
+
+            if (retryCount > 0) {
+                writeToTerminal(`Server uyg'onishini kutish (Qayta urinish: ${retryCount}/5)...`);
             }
 
             try {
@@ -254,12 +270,15 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: urlInput }),
-                    timeout: 25000 // 25 soniyali API kutish vaqti
+                    timeout: 25000 
                 });
 
                 const data = await response.json();
 
                 if(response.ok && data.status === "success") {
+                    writeToTerminal("Muvaffaqiyatli! Natijalar tayyor.", true);
+                    terminalStatus.innerText = "YAKUNLANDI";
+                    
                     const tech = data.technical_data;
                     
                     document.getElementById('scoreBadge').innerText = tech.score;
@@ -269,65 +288,54 @@
                     document.getElementById('sslStatus').className = tech.ssl.includes("XAVFSIZ") ? "text-emerald-400 font-bold text-sm" : "text-rose-500 font-bold text-sm";
                     
                     document.getElementById('cmsStatus').innerText = `${tech.infrastructure.CMS} / ${tech.infrastructure.Server}`;
-                    document.getElementById('portsStatus').innerText = tech.open_ports.join(', ');
-                    document.getElementById('leaksStatus').innerText = Array.isArray(tech.sensitive_leaks) ? tech.sensitive_leaks.join(', ') : tech.sensitive_leaks;
+                    document.getElementById('dnsStatus').innerText = `SPF: ${tech.email_security.SPF} | DMARC: ${tech.email_security.DMARC}`;
+
+                    // OWASP Grid dinamik kartalari hosil qilish
+                    const owaspGrid = document.getElementById('owaspGrid');
+                    owaspGrid.innerHTML = "";
+                    
+                    Object.keys(tech.owasp_status).forEach(key => {
+                        const status = tech.owasp_status[key];
+                        const isSafe = status === "XAVFSIZ";
+                        
+                        const itemHtml = `
+                            <div class="bg-[#070a13] p-4 rounded-lg border border-gray-800 flex items-center justify-between">
+                                <span class="text-xs text-gray-300 font-medium">${owaspLabels[key] || key}</span>
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-md ${isSafe ? 'bg-emerald-950 text-emerald-400' : 'bg-rose-950 text-rose-400'}">
+                                    ${status}
+                                </span>
+                            </div>
+                        `;
+                        owaspGrid.innerHTML += itemHtml;
+                    });
 
                     document.getElementById('aiReportText').innerHTML = parseMarkdown(data.ai_report);
-                    
-                    document.getElementById('pdfMetaTarget').innerText = `NISHON SITEDAGI AUDIT: ${urlInput} | SANA: ${new Date().toLocaleDateString()}`;
-                    document.getElementById('pdfScore').innerText = `${tech.score} (${tech.rating})`;
-                    document.getElementById('pdfSsl').innerText = tech.ssl;
-                    document.getElementById('pdfCms').innerText = `${tech.infrastructure.CMS} (${tech.infrastructure.Server})`;
-                    document.getElementById('pdfPorts').innerText = tech.open_ports.join(', ');
-                    document.getElementById('pdfLeaks').innerText = Array.isArray(tech.sensitive_leaks) ? tech.sensitive_leaks.join(', ') : tech.sensitive_leaks;
-                    document.getElementById('pdfAiContent').innerHTML = parseMarkdownForPdf(data.ai_report);
 
-                    dashboard.classList.remove('hidden');
-                    loader.classList.add('hidden');
+                    setTimeout(() => {
+                        terminal.classList.add('hidden');
+                        dashboard.classList.remove('hidden');
+                    }, 1000);
+
                 } else {
-                    loader.classList.add('hidden');
-                    showModal("Audit xatosi", data.detail || "Hisobot olishda muammo yuz berdi.");
+                    terminal.classList.add('hidden');
+                    showModal("Auditda xatolik", data.detail || "Server hisobot olishda xato qaytardi.");
                 }
             } catch (error) {
-                // Agar server javob bermasa (cold start bo'lsa), uchinchi urinishgacha harakat qiladi
                 if (retryCount < 4) {
                     setTimeout(() => {
-                        launchAuditWithRetry(retryCount + 1);
+                        triggerRealAudit(urlInput, retryCount + 1);
                     }, 12000); 
                 } else {
-                    loader.classList.add('hidden');
+                    terminal.classList.add('hidden');
                     showModal(
-                        "Ulanish kutilganidan uzoq davom etdi", 
-                        "Render bepul serveri hali to'liq uyg'onmadi. Iltimos, 15 soniya kutib, 'Auditni Boshlash' tugmasini qayta bosing."
+                        "Ulanish muvaffaqiyatsiz bo'ldi", 
+                        "Render serveringiz hali to'liq uyg'onmadi. Iltimos, 15 soniya o'tib qayta urinib ko'ring."
                     );
                 }
             }
-        }
-
-        function downloadPerfectPDF() {
-            const pdfTemplateBox = document.getElementById('hiddenPdfTemplate');
-            pdfTemplateBox.style.display = 'block';
-
-            const opt = {
-                margin:       [15, 15, 15, 15],
-                filename:     'VDX_Enterprise_Security_Report.pdf',
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(pdfTemplateBox).save()
-            .then(() => {
-                pdfTemplateBox.style.display = 'none';
-            })
-            .catch((err) => {
-                pdfTemplateBox.style.display = 'none';
-                showModal("Eksport xatosi", "PDF yuklashda kutilmagan muammo yuz berdi.");
-            });
         }
     </script>
 </body>
 </html>
 
 
-    
