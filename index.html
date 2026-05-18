@@ -98,21 +98,18 @@
                 submitBtn.disabled = true;
                 urlInput.disabled = true;
                 btnText.textContent = 'Skanerlanmoqda...';
-                
-                // Matn tozaligi va panel ochilishi
                 outputTarget.textContent = '🤖 [SYSTEM] Markaziy serverga ulanish o\'rnatilmoqda... \n';
                 resultPanel.classList.remove('hidden');
 
-                // Eskirgan parametrlarsiz toza so'rov yuboramiz
+                // Original EventSource ulanishi
                 const eventSource = new EventSource(`${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`);
 
                 eventSource.onmessage = function(event) {
-                    // "Ulanish o'rnatilmoqda" degan yozuvni tozalab yangi loglarni yozadi
                     if (outputTarget.textContent.includes('Markaziy serverga ulanish')) {
                         outputTarget.textContent = '';
                     }
                     
-                    if (event.data === "[DONE]") {
+                    if (event.data.trim() === "[DONE]") {
                         eventSource.close();
                         submitBtn.disabled = false;
                         urlInput.disabled = false;
@@ -125,7 +122,6 @@
                 };
 
                 eventSource.onerror = function() {
-                    outputTarget.textContent += '❌ [ERROR] Oqim ulanishida uzilish yuz berdi yoki server javob bermadi.\n';
                     eventSource.close();
                     submitBtn.disabled = false;
                     urlInput.disabled = false;
