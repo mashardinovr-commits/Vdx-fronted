@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="uz" class="dark">
 <head>
@@ -10,7 +11,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
-        /* Har qanday mobil brauzerda ham majburiy to'q rang rejimini saqlash */
         html, body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #030712 !important;
@@ -20,20 +20,17 @@
             min-height: 100vh;
         }
 
-        /* Premium kiber-glow dizayni */
         .cyber-glow {
             box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
         }
 
-        .neon-border-blue {
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .neon-border-blue:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+        .glass-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
         }
 
-        /* Markdown matnlarini vizual to'g'ri render qilish */
         pre { 
             background: #020617 !important; 
             padding: 16px; 
@@ -78,7 +75,7 @@
 
     <div class="max-w-6xl mx-auto">
         
-        <!-- Header -->
+        <!-- Header Section: Matnlar yorqin oq va ko'k rangda -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 pb-6 border-b border-gray-800 gap-4">
             <div>
                 <div class="flex items-center gap-2">
@@ -87,10 +84,10 @@
                         VDX AI <span class="text-blue-500">//</span> CYBER SUITE
                     </h1>
                 </div>
-                <p class="text-gray-400 text-xs md:text-sm mt-2">B2B Korporativ Kiberxavfsizlik va Avtomatlashtirilgan Audit Tizimi</p>
+                <p class="text-gray-300 text-xs md:text-sm mt-2 font-medium">B2B Korporativ Kiberxavfsizlik va Avtomatlashtirilgan Audit Tizimi</p>
             </div>
             <div>
-                <span class="bg-blue-950 text-blue-400 text-xs font-bold px-3.5 py-2 rounded-lg border border-blue-800/60 tracking-wider">
+                <span class="bg-blue-950 text-blue-300 text-xs font-bold px-3.5 py-2 rounded-lg border border-blue-800 tracking-wider">
                     ENTERPRISE PRO v3.0
                 </span>
             </div>
@@ -98,20 +95,30 @@
 
         <!-- Input Box -->
         <div class="bg-[#0b0f19] rounded-2xl p-6 md:p-8 mb-8 border border-gray-800 cyber-glow">
-            <label class="block text-xs font-bold uppercase text-gray-400 tracking-wider mb-3">Audit qilinadigan korporativ veb-sayt (URL):</label>
+            <label class="block text-xs font-bold uppercase text-gray-300 tracking-wider mb-3">Audit qilinadigan korporativ veb-sayt (URL):</label>
             <div class="flex flex-col md:flex-row gap-4">
                 <input type="text" id="targetUrl" placeholder="https://bank yoki kompaniya sayti.uz" 
-                       class="flex-1 bg-[#070a13] border border-gray-800 rounded-xl px-5 py-3.5 text-white text-base focus:outline-none focus:border-blue-500 transition duration-300">
-                <button onclick="launchAudit()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-3.5 rounded-xl transition duration-200 transform active:scale-95 shadow-lg shadow-blue-600/20 text-base">
+                       class="flex-1 bg-[#070a13] border border-gray-700 rounded-xl px-5 py-3.5 text-white text-base focus:outline-none focus:border-blue-500 transition duration-300">
+                <button onclick="launchAuditWithRetry()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-10 py-3.5 rounded-xl transition duration-200 transform active:scale-95 shadow-lg shadow-blue-600/20 text-base">
                     Auditni Boshlash
                 </button>
             </div>
         </div>
 
-        <!-- Loader -->
+        <!-- Chiroyli Custom Xatolik Modali (Browser alert o'rniga) -->
+        <div id="customModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+            <div class="bg-[#0f172a] border border-gray-800 rounded-2xl max-w-md w-full p-6 text-center cyber-glow">
+                <div class="text-rose-500 text-4xl mb-3">⚠️</div>
+                <h3 class="text-lg font-bold text-white mb-2" id="modalTitle">Ulanish xatosi</h3>
+                <p class="text-gray-400 text-sm mb-6" id="modalText"></p>
+                <button onclick="closeModal()" class="bg-gray-800 hover:bg-gray-700 text-white font-semibold px-6 py-2 rounded-lg transition">Yopish</button>
+            </div>
+        </div>
+
+        <!-- Loader & Retry Status -->
         <div id="loader" class="hidden text-center my-16">
             <div class="animate-spin inline-block w-10 h-10 border-[3px] border-blue-500 border-t-transparent rounded-full mb-4"></div>
-            <p class="text-gray-400 text-sm animate-pulse font-medium">Infratuzilma zaifliklari va ochiq ma'lumotlar tahlil qilinmoqda. Sun'iy intellekt hisobot tayyorlamoqda...</p>
+            <p id="loaderText" class="text-blue-400 text-sm animate-pulse font-medium">Infratuzilma zaifliklari va ochiq ma'lumotlar tahlil qilinmoqda...</p>
         </div>
 
         <!-- Results Dashboard -->
@@ -187,7 +194,7 @@
     <script>
         const BACKEND_URL = "https://vdx-saas.onrender.com/api/audit"; 
 
-        // Platforma parseriga xalaqit bermaslik uchun RegExp orqali kod bloklarini tahrirlash
+        // Platforma parseriga xalaqit bermaslik uchun RegExp obyektlari yordamida formatlash
         function parseMarkdown(text) {
             if (!text) return "";
             let html = text
@@ -197,7 +204,6 @@
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
                 .replace(/`([^`]+)`/g, '<code>$1</code>');
             
-            // Xavfsiz RegExp orqali kod bloklarini parse qilish
             const codeBlockPattern = new RegExp('\\`\\`\\`([\\s\\S]*?)\\`\\`\\s*', 'g');
             html = html.replace(codeBlockPattern, '<pre>$1</pre>');
             
@@ -226,15 +232,32 @@
             return html;
         }
 
-        async function launchAudit() {
+        function showModal(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            document.getElementById('customModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        // B2B Server Wakeup va Qayta Urinish Algoritmi (Retry System)
+        async function launchAuditWithRetry(retryCount = 0) {
             const urlInput = document.getElementById('targetUrl').value;
             const loader = document.getElementById('loader');
+            const loaderText = document.getElementById('loaderText');
             const dashboard = document.getElementById('dashboard');
 
-            if(!urlInput) { alert("Iltimos, kompaniya veb-sayti manzilini kiriting!"); return; }
+            if(!urlInput) { showModal("Kirish xatosi", "Iltimos, kompaniya veb-sayti manzilini kiriting!"); return; }
 
-            loader.classList.remove('hidden');
-            dashboard.classList.add('hidden');
+            if (retryCount === 0) {
+                loader.classList.remove('hidden');
+                dashboard.classList.add('hidden');
+                loaderText.innerText = "Infratuzilma zaifliklari tahlil qilinmoqda. Iltimos kuting...";
+            } else {
+                loaderText.innerText = `Render server uyg'onishi kutilmoqda (Urinish: ${retryCount}/4)...`;
+            }
 
             try {
                 const response = await fetch(BACKEND_URL, {
@@ -269,13 +292,24 @@
                     document.getElementById('pdfAiContent').innerHTML = parseMarkdownForPdf(data.ai_report);
 
                     dashboard.classList.remove('hidden');
+                    loader.classList.add('hidden');
                 } else {
-                    alert("Xatolik: " + (data.detail || "Hisobot olishda ichki xatolik yuz berdi."));
+                    loader.classList.add('hidden');
+                    showModal("Audit xatosi", data.detail || "Hisobot olishda muammo yuz berdi.");
                 }
             } catch (error) {
-                alert("Backend serverga ulanib bo'lmadi. Server uyg'onayotgan bo'lishi mumkin.");
-            } finally {
-                loader.classList.add('hidden');
+                // Agar server javob bermasa (cold start bo'lsa), 15 soniya kutib qayta urinadi
+                if (retryCount < 3) {
+                    setTimeout(() => {
+                        launchAuditWithRetry(retryCount + 1);
+                    }, 15000); // Har 15 soniyada qayta urinadi
+                } else {
+                    loader.classList.add('hidden');
+                    showModal(
+                        "Ulanish kutilganidan uzoq davom etdi", 
+                        "Backend server uyg'onishga ulgurmadi. Iltimos, 15 soniyadan so'ng 'Auditni Boshlash' tugmasini yana bir bor bosing."
+                    );
+                }
             }
         }
 
@@ -297,10 +331,12 @@
             })
             .catch((err) => {
                 pdfTemplateBox.style.display = 'none';
-                alert("PDF yuklashda xatolik bo'ldi.");
+                showModal("Eksport xatosi", "PDF yuklashda kutilmagan muammo yuz berdi.");
             });
         }
     </script>
 </body>
-                </html>
+</html>
+
+
     
