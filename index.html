@@ -24,12 +24,13 @@
             box-shadow: 0 0 25px #ff007f, 0 0 10px #39ff14;
             transform: scale(1.02);
         }
-        /* Markdown va kod bloklari dizayni */
-        pre { background-color: #05050b; padding: 12px; border-left: 3px solid #ff007f; color: #39ff14; overflow-x: auto; font-family: monospace; margin: 10px 0; }
+        /* Markdown kod ko'rinishi uchun kiber dizayn */
+        pre { background-color: #05050b; padding: 14px; border-left: 3px solid #ff007f; color: #39ff14; overflow-x: auto; font-family: monospace; margin: 12px 0; border-radius: 2px; }
         code { color: #ff007f; font-family: monospace; background: #1a1a2e; padding: 2px 6px; border-radius: 3px; }
-        h3 { color: #ff007f; font-weight: bold; margin-top: 15px; font-size: 1.2rem; }
-        ul { list-style-type: square; margin-left: 20px; color: #e0e0e0; }
-        li { margin-bottom: 5px; }
+        h3 { color: #ff007f; font-weight: bold; margin-top: 18px; font-size: 1.25rem; tracking-wide: 1px; }
+        ul { list-style-type: square; margin-left: 22px; color: #e0e0e0; }
+        li { margin-bottom: 6px; }
+        strong { color: #ffffff; }
     </style>
 </head>
 <body class="p-6 min-h-screen flex flex-col items-center justify-center">
@@ -51,7 +52,7 @@
         </div>
 
         <div id="loader" class="hidden text-center my-6 animate-pulse text-[#ff007f]">
-            [>] MATRIXGA ULANISH... OWASP VA AI TAHLIL KETMOQDA... ILTIMOS KUTING...
+            [>] MATRIXGA ULANISH... GROQ GLOBAL AI TAHLILI KETMOQDA... ILTIMOS KUTING...
         </div>
 
         <div id="resultContainer" class="hidden mt-8 border-t border-[#39ff14] pt-6">
@@ -76,10 +77,10 @@
     </div>
 
     <script>
-        // SIZNING JONLI BACKEND SERVER MANZILINGIZ (Muvaffaqiyatli ulandi)
+        // Render serveringizdagi jonli API havolasi muvaffaqiyatli ulandi
         const BACKEND_URL = "https://vdx-saas.onrender.com/api/audit"; 
 
-        // AI dan keladigan markdown matnni terminalbop vizual ko'rinishga keltirish uchun oddiy parser
+        // Sun'iy intellektdan kelgan markdown javobni terminalbop chiroyli holatga keltirish
         function parseMarkdown(text) {
             return text
                 .replace(/### (.*?)\n/g, '<h3>$1</h3>')
@@ -96,7 +97,7 @@
             const resultContainer = document.getElementById('resultContainer');
 
             if(!urlInput) {
-                alert("Iltimos, URL manzilini kiriting!");
+                alert("Iltimos, tekshiriluvchi sayt URL manzilini kiriting!");
                 return;
             }
 
@@ -114,18 +115,17 @@
 
                 if(response.ok && data.status === "success") {
                     document.getElementById('sslRes').innerText = data.technical_data.ssl_status;
-                    document.getElementById('portsRes').innerText = data.technical_data.open_ports.length > 0 
+                    document.getElementById('portsRes').innerText = Array.isArray(data.technical_data.open_ports) 
                         ? data.technical_data.open_ports.join(', ') 
-                        : "Barcha standart portlar yopiq";
+                        : data.technical_data.open_ports;
                     
-                    // Kelgan hisobotni kiberpank formatda render qilish
                     document.getElementById('aiReport').innerHTML = parseMarkdown(data.ai_report);
                     resultContainer.classList.remove('hidden');
                 } else {
-                    alert("Xatolik yuz berdi: " + (data.detail || "Noma'lum xatolik"));
+                    alert("Xatolik: " + (data.detail || "Server tahlil qila olmadi. API kalit yoki modelni tekshiring."));
                 }
             } catch (error) {
-                alert("Serverga ulanib bo'lmadi. Render uyqu rejimida bo'lishi mumkin, 30 soniya kutib qaytadan urinib ko'ring.");
+                alert("Server uyqu rejimida yoki ulanib bo'lmadi. 20-30 soniya kutib qaytadan urining.");
             } finally {
                 loader.classList.add('hidden');
             }
