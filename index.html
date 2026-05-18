@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VDX AI // Cyber Auditor</title>
+    <title>VDX AI // Cyber Auditor PRO</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -16,98 +16,70 @@
 
     <nav class="max-w-6xl mx-auto px-4 py-4 relative z-20 flex justify-between items-center border-b border-slate-900">
         <div class="font-bold text-xl tracking-wider text-cyan-400 font-mono">VDX AI //</div>
-        <div class="flex gap-4 items-center font-mono text-sm">
-            <span id="userBadge" class="hidden text-teal-400 border border-teal-500/30 bg-teal-950/40 px-3 py-1 rounded-xl"></span>
-            <button id="logoutBtn" class="hidden text-red-400 hover:underline cursor-pointer">Chiqish</button>
-            <button id="authModalBtn" type="button" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-cyan-400 cursor-pointer relative z-30">
-                Kirish / Ro'yxatdan o'tish
-            </button>
+        <div class="text-xs font-mono text-cyan-400 bg-cyan-950/50 border border-cyan-500/30 px-3 py-1 rounded-xl">
+            ● ADVANCED CYBER ENGINE v3.0
         </div>
     </nav>
 
     <div class="max-w-4xl mx-auto px-4 py-12 relative z-10">
         <div class="text-center mb-12">
-            <h1 class="text-4xl font-extrabold text-cyan-400 mb-4">VDX AI // Cyber Auditor</h1>
-            <p class="text-slate-400">Veb-saytingiz xavfsizligini sun'iy intellekt orqali tekshiring.</p>
+            <h1 class="text-4xl font-extrabold text-cyan-400 mb-4 tracking-tight">VDX AI // Cyber Auditor PRO</h1>
+            <p class="text-slate-400">OWASP Top 10, Directory Busting va Sun'iy intellekt asosidagi chuqurlashtirilgan kiber-audit.</p>
         </div>
 
         <form id="auditForm" class="bg-slate-900/60 p-4 border border-slate-800 rounded-2xl flex flex-col sm:flex-row gap-3 mb-10">
-            <input type="text" id="urlInput" placeholder="Masalan: google.com" class="flex-1 px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono" required />
-            <button type="submit" id="submitBtn" class="sm:px-8 py-3 bg-cyan-500 text-slate-950 font-bold rounded-xl cursor-pointer">
-                <span id="btnText">Auditni boshlash</span>
+            <input type="text" id="urlInput" placeholder="Masalan: target-site.com" class="flex-1 px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-mono focus:outline-none focus:border-cyan-500" required />
+            <button type="submit" id="submitBtn" class="sm:px-8 py-3 bg-cyan-500 text-slate-950 font-bold rounded-xl cursor-pointer hover:bg-cyan-400 transition-colors">
+                <span id="btnText">Chuqur Auditni Boshlash</span>
             </button>
         </form>
 
-        <div id="resultPanel" class="hidden mb-12 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden animate-fade-in">
-            <div class="bg-slate-900 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <span class="font-mono text-xs text-slate-400">SYSTEM OUTPUT</span>
-                <span id="statusDot" class="w-3 h-3 rounded-full bg-cyan-500 animate-pulse"></span>
+        <div id="resultPanel" class="hidden mb-12 bg-black border border-slate-800 rounded-2xl overflow-hidden shadow-2xl shadow-cyan-950/20 animate-fade-in">
+            <div class="bg-slate-950 px-6 py-4 border-b border-slate-900 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                    <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                    <span class="font-mono text-xs text-slate-500 ml-2">CORE_AUDIT_LOGS.sh</span>
+                </div>
+                <span id="statusDot" class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
             </div>
-            <div class="p-6"><pre id="outputTarget" class="whitespace-pre-wrap font-mono text-slate-200 text-sm bg-black/50 p-4 rounded-xl max-h-[500px] overflow-y-auto"></pre></div>
+            <div class="p-6 bg-black/95">
+                <pre id="outputTarget" class="whitespace-pre-wrap font-mono text-emerald-400 text-sm p-2 rounded-xl max-h-[550px] overflow-y-auto leading-relaxed"></pre>
+            </div>
         </div>
 
-        <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-12">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
-                <div><h3 class="text-cyan-400 font-bold mb-2">🚀 Pro Plan</h3><p class="text-2xl font-bold mb-4">180,000 so'm</p></div>
-                <div class="flex flex-col gap-2">
-                    <button type="button" onclick="buyPlan('pro', 'click')" class="w-full py-2 bg-blue-600 text-white font-bold rounded-xl text-sm cursor-pointer relative z-10">Click</button>
-                    <button type="button" onclick="buyPlan('pro', 'payme')" class="w-full py-2 bg-cyan-600 text-white font-bold rounded-xl text-sm cursor-pointer relative z-10">Payme</button>
-                </div>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
-                <div><h3 class="text-teal-400 font-bold mb-2">👑 Enterprise</h3><p class="text-2xl font-bold mb-4">600,000 so'm</p></div>
-                <div class="flex flex-col gap-2">
-                    <button type="button" onclick="buyPlan('enterprise', 'click')" class="w-full py-2 bg-blue-600 text-white font-bold rounded-xl text-sm cursor-pointer relative z-10">Click</button>
-                    <button type="button" onclick="buyPlan('enterprise', 'payme')" class="w-full py-2 bg-cyan-600 text-white font-bold rounded-xl text-sm cursor-pointer relative z-10">Payme</button>
-                </div>
-            </div>
+        <div class="text-center mb-6">
+            <h2 class="text-xl font-bold text-slate-300">// Premium Imkoniyatlarni Faollashtiring</h2>
         </div>
-    </div>
-
-    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative">
-            <button id="closeModal" type="button" class="absolute top-4 right-4 text-slate-400 text-2xl cursor-pointer">&times;</button>
-            <div class="flex justify-center gap-4 border-b border-slate-800 pb-3 mb-6 font-mono text-sm">
-                <button id="tabLogin" type="button" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer">Kirish</button>
-                <button id="tabRegister" type="button" class="text-slate-400 pb-1 cursor-pointer">Ro'yxatdan o'tish</button>
+        <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition-all">
+                <div><h3 class="text-cyan-400 font-bold mb-2">🚀 Pro Plan</h3><p class="text-2xl font-bold mb-4">180,000 so'm <span class="text-xs text-slate-500">/ oy</span></p></div>
+                <div class="flex flex-col gap-2">
+                    <button type="button" onclick="buyPlan('pro', 'click')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm cursor-pointer transition-all">Click orqali sotib olish</button>
+                    <button type="button" onclick="buyPlan('pro', 'payme')" class="w-full py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm cursor-pointer transition-all">Payme orqali sotib olish</button>
+                </div>
             </div>
-            <form id="loginForm" class="flex flex-col gap-4">
-                <input type="email" id="loginEmail" placeholder="Email" class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white" required />
-                <input type="password" id="loginPassword" placeholder="Parol" class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white" required />
-                <button type="submit" class="w-full py-2.5 bg-cyan-500 text-slate-950 font-bold rounded-xl cursor-pointer">Kirish</button>
-            </form>
-            <form id="registerForm" class="hidden flex flex-col gap-4">
-                <input type="text" id="regUsername" placeholder="Foydalanuvchi nomi" class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white" required />
-                <input type="email" id="regEmail" placeholder="Email" class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white" required />
-                <input type="password" id="regPassword" placeholder="Parol yarating" class="w-full px-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white" required />
-                <button type="submit" class="w-full py-2.5 bg-cyan-500 text-slate-950 font-bold rounded-xl cursor-pointer">Hisob yaratish</button>
-            </form>
+            <div class="bg-slate-900/50 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-slate-700 transition-all">
+                <div><h3 class="text-teal-400 font-bold mb-2">👑 Enterprise</h3><p class="text-2xl font-bold mb-4">600,000 so'm <span class="text-xs text-slate-500">/ yil</span></p></div>
+                <div class="flex flex-col gap-2">
+                    <button type="button" onclick="buyPlan('enterprise', 'click')" class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm cursor-pointer transition-all">Click orqali sotib olish</button>
+                    <button type="button" onclick="buyPlan('enterprise', 'payme')" class="w-full py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm cursor-pointer transition-all">Payme orqali sotib olish</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const BACKEND_URL = "https://vdx-saas.onrender.com";
 
-        // Global funksiya (Xatolikka chek qo'yildi)
         async function buyPlan(plan, provider) {
-            const email = localStorage.getItem('user_email');
-            if (!email) {
-                alert('Avval tizimga kiring!');
-                document.getElementById('authModal').classList.remove('hidden');
-                return;
-            }
             try {
-                const token = localStorage.getItem('access_token');
-                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?email=${encodeURIComponent(email)}&plan=${plan}&provider=${provider}`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) throw new Error('Xatolik yuz berdi.');
+                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?plan=${plan}&provider=${provider}`, { method: 'POST' });
+                if (!response.ok) throw new Error('Tarif xatoligi.');
                 const data = await response.json();
                 if (data.payment_url) window.location.href = data.payment_url;
-            } catch (err) {
-                alert("To'lov xatosi: " + err.message);
-            }
+            } catch (err) { alert("To'lov xatosi: " + err.message); }
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -117,87 +89,6 @@
             const btnText = document.getElementById('btnText');
             const resultPanel = document.getElementById('resultPanel');
             const outputTarget = document.getElementById('outputTarget');
-            const statusDot = document.getElementById('statusDot');
-
-            const authModal = document.getElementById('authModal');
-            const authModalBtn = document.getElementById('authModalBtn');
-            const closeModal = document.getElementById('closeModal');
-            const tabLogin = document.getElementById('tabLogin');
-            const tabRegister = document.getElementById('tabRegister');
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const userBadge = document.getElementById('userBadge');
-            const logoutBtn = document.getElementById('logoutBtn');
-
-            function updateAuthUI() {
-                if (localStorage.getItem('user_email')) {
-                    authModalBtn.classList.add('hidden');
-                    userBadge.textContent = `${localStorage.getItem('user_name')} (${localStorage.getItem('user_tier').toUpperCase()})`;
-                    userBadge.classList.remove('hidden');
-                    logoutBtn.classList.remove('hidden');
-                } else {
-                    authModalBtn.classList.remove('hidden');
-                    userBadge.classList.add('hidden');
-                    logoutBtn.classList.add('hidden');
-                }
-            }
-            updateAuthUI();
-
-            authModalBtn.addEventListener('click', () => authModal.classList.remove('hidden'));
-            closeModal.addEventListener('click', () => authModal.classList.add('hidden'));
-            
-            tabLogin.onclick = () => {
-                tabLogin.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
-                tabRegister.className = "text-slate-400 pb-1 cursor-pointer";
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-            };
-            tabRegister.onclick = () => {
-                tabRegister.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
-                tabLogin.className = "text-slate-400 pb-1 cursor-pointer";
-                registerForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-            };
-
-            logoutBtn.onclick = () => {
-                localStorage.clear();
-                updateAuthUI();
-                alert('Tizimdan chiqdingiz.');
-            };
-
-            loginForm.onsubmit = async (e) => {
-                e.preventDefault();
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: document.getElementById('loginEmail').value.trim(), password: document.getElementById('loginPassword').value })
-                    });
-                    if (!response.ok) throw new Error('Email yoki parol xato!');
-                    const data = await response.json();
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('user_email', data.user.email);
-                    localStorage.setItem('user_tier', data.user.tier);
-                    localStorage.setItem('user_name', data.user.username);
-                    updateAuthUI();
-                    authModal.classList.add('hidden');
-                    alert('Xush kelibsiz!');
-                } catch (err) { alert(err.message); }
-            };
-
-            registerForm.onsubmit = async (e) => {
-                e.preventDefault();
-                try {
-                    const response = await fetch(`${BACKEND_URL}/api/v1/auth/register`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: document.getElementById('regUsername').value.trim(), email: document.getElementById('regEmail').value.trim(), password: document.getElementById('regPassword').value })
-                    });
-                    if (!response.ok) throw new Error('Xatolik yuz berdi.');
-                    alert('Muvaffaqiyatli roʻyxatdan oʻtdingiz!');
-                    tabLogin.click();
-                } catch (err) { alert(err.message); }
-            };
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -206,24 +97,39 @@
 
                 submitBtn.disabled = true;
                 urlInput.disabled = true;
-                btnText.textContent = 'Audit qilinmoqda...';
-                outputTarget.textContent = 'Serverga ulanmoqda... \n';
+                btnText.textContent = 'Skanerlanmoqda...';
+                
+                // Matn tozaligi va panel ochilishi
+                outputTarget.textContent = '🤖 [SYSTEM] Markaziy serverga ulanish o\'rnatilmoqda... \n';
                 resultPanel.classList.remove('hidden');
 
-                const emailToSend = localStorage.getItem('user_email') || "guest@vdx.uz";
-                const eventSource = new EventSource(`${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(emailToSend)}`);
+                // Eskirgan parametrlarsiz toza so'rov yuboramiz
+                const eventSource = new EventSource(`${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz`);
 
                 eventSource.onmessage = function(event) {
-                    if (outputTarget.textContent.includes('Serverga ulanmoqda')) outputTarget.textContent = '';
+                    // "Ulanish o'rnatilmoqda" degan yozuvni tozalab yangi loglarni yozadi
+                    if (outputTarget.textContent.includes('Markaziy serverga ulanish')) {
+                        outputTarget.textContent = '';
+                    }
+                    
+                    if (event.data === "[DONE]") {
+                        eventSource.close();
+                        submitBtn.disabled = false;
+                        urlInput.disabled = false;
+                        btnText.textContent = 'Chuqur Auditni Boshlash';
+                        return;
+                    }
+                    
                     outputTarget.textContent += event.data + '\n';
                     outputTarget.scrollTop = outputTarget.scrollHeight;
                 };
 
                 eventSource.onerror = function() {
+                    outputTarget.textContent += '❌ [ERROR] Oqim ulanishida uzilish yuz berdi yoki server javob bermadi.\n';
                     eventSource.close();
                     submitBtn.disabled = false;
                     urlInput.disabled = false;
-                    btnText.textContent = 'Auditni boshlash';
+                    btnText.textContent = 'Chuqur Auditni Boshlash';
                 };
             });
         });
