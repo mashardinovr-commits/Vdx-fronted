@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="uz" class="dark">
 <head>
@@ -6,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VDX AI // Cyber Security Enterprise Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- PDF eksport qilish uchun html2pdf kutubxonasi -->
+    <!-- PDF yaratish uchun html2pdf kutubxonasi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
@@ -22,13 +21,6 @@
 
         .cyber-glow {
             box-shadow: 0 0 25px rgba(37, 99, 235, 0.15);
-        }
-
-        .glass-card {
-            background: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 16px;
         }
 
         pre { 
@@ -75,7 +67,7 @@
 
     <div class="max-w-6xl mx-auto">
         
-        <!-- Header Section: Matnlar yorqin oq va ko'k rangda -->
+        <!-- Header Section -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 pb-6 border-b border-gray-800 gap-4">
             <div>
                 <div class="flex items-center gap-2">
@@ -105,7 +97,7 @@
             </div>
         </div>
 
-        <!-- Chiroyli Custom Xatolik Modali (Browser alert o'rniga) -->
+        <!-- Custom Xatolik Modali -->
         <div id="customModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
             <div class="bg-[#0f172a] border border-gray-800 rounded-2xl max-w-md w-full p-6 text-center cyber-glow">
                 <div class="text-rose-500 text-4xl mb-3">⚠️</div>
@@ -155,7 +147,7 @@
                 <div id="aiReportText" class="text-gray-300 text-sm leading-relaxed space-y-4"></div>
             </div>
 
-            <!-- PDF GENERATOR HIDDEN BOX (Rasmiy A4 oq-qora shablon) -->
+            <!-- PDF GENERATOR HIDDEN BOX -->
             <div id="hiddenPdfTemplate" style="display: none;">
                 <div style="font-family: Arial, sans-serif; color: #111111; padding: 40px; background: #ffffff;">
                     <div style="border-bottom: 3px solid #1a365d; padding-bottom: 15px; margin-bottom: 25px;">
@@ -194,7 +186,6 @@
     <script>
         const BACKEND_URL = "https://vdx-saas.onrender.com/api/audit"; 
 
-        // Platforma parseriga xalaqit bermaslik uchun RegExp obyektlari yordamida formatlash
         function parseMarkdown(text) {
             if (!text) return "";
             let html = text
@@ -242,7 +233,6 @@
             document.getElementById('customModal').classList.add('hidden');
         }
 
-        // B2B Server Wakeup va Qayta Urinish Algoritmi (Retry System)
         async function launchAuditWithRetry(retryCount = 0) {
             const urlInput = document.getElementById('targetUrl').value;
             const loader = document.getElementById('loader');
@@ -256,14 +246,15 @@
                 dashboard.classList.add('hidden');
                 loaderText.innerText = "Infratuzilma zaifliklari tahlil qilinmoqda. Iltimos kuting...";
             } else {
-                loaderText.innerText = `Render server uyg'onishi kutilmoqda (Urinish: ${retryCount}/4)...`;
+                loaderText.innerText = `Render server uyg'onishi kutilmoqda (Urinish: ${retryCount}/5)...`;
             }
 
             try {
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: urlInput })
+                    body: JSON.stringify({ url: urlInput }),
+                    timeout: 25000 // 25 soniyali API kutish vaqti
                 });
 
                 const data = await response.json();
@@ -298,16 +289,16 @@
                     showModal("Audit xatosi", data.detail || "Hisobot olishda muammo yuz berdi.");
                 }
             } catch (error) {
-                // Agar server javob bermasa (cold start bo'lsa), 15 soniya kutib qayta urinadi
-                if (retryCount < 3) {
+                // Agar server javob bermasa (cold start bo'lsa), uchinchi urinishgacha harakat qiladi
+                if (retryCount < 4) {
                     setTimeout(() => {
                         launchAuditWithRetry(retryCount + 1);
-                    }, 15000); // Har 15 soniyada qayta urinadi
+                    }, 12000); 
                 } else {
                     loader.classList.add('hidden');
                     showModal(
                         "Ulanish kutilganidan uzoq davom etdi", 
-                        "Backend server uyg'onishga ulgurmadi. Iltimos, 15 soniyadan so'ng 'Auditni Boshlash' tugmasini yana bir bor bosing."
+                        "Render bepul serveri hali to'liq uyg'onmadi. Iltimos, 15 soniya kutib, 'Auditni Boshlash' tugmasini qayta bosing."
                     );
                 }
             }
