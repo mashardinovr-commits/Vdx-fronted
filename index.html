@@ -3,330 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VDX AI // Cyber Auditor & SaaS</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>VDX AI // CYBER AUDITOR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0a0a12;
+            color: #39ff14; /* Neon Green */
         }
-        .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .cyber-border {
+            border: 2px solid #39ff14;
+            box-shadow: 0 0 15px #39ff14, inset 0 0 10px #39ff14;
+        }
+        .cyber-btn {
+            background: linear-gradient(45deg, #ff007f, #39ff14);
+            transition: all 0.3s ease;
+        }
+        .cyber-btn:hover {
+            box-shadow: 0 0 25px #ff007f, 0 0 10px #39ff14;
+            transform: scale(1.02);
+        }
+        /* Markdown kod ko'rinishi uchun */
+        pre { background-color: #111122; padding: 10px; border-radius: 5px; color: #ff007f; overflow-x: auto; }
     </style>
 </head>
-<body class="bg-slate-950 text-white font-sans selection:bg-cyan-500 selection:text-slate-900 relative min-h-screen overflow-x-hidden">
+<body class="p-6 min-h-screen flex flex-col items-center justify-center">
 
-    <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.15),transparent_50%)] pointer-events-none"></div>
-
-    <nav class="max-w-6xl mx-auto px-4 py-4 relative z-20 flex justify-between items-center border-b border-slate-900">
-        <div class="font-bold text-xl tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-indigo-400 font-mono">
-            VDX AI //
-        </div>
-        <div class="flex gap-4 items-center font-mono text-sm">
-            <span id="userBadge" class="hidden text-teal-400 border border-teal-500/30 bg-teal-950/40 px-3 py-1 rounded-xl"></span>
-            <button id="logoutBtn" class="hidden text-red-400 hover:underline cursor-pointer">Chiqish</button>
-            <button id="authModalBtn" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-cyan-400 transition-colors cursor-pointer">
-                Kirish / Ro'yxatdan o'tish
-            </button>
-        </div>
-    </nav>
-
-    <div class="max-w-4xl mx-auto px-4 py-12 relative z-10">
+    <div class="w-full max-w-4xl cyber-border bg-[#0f0f1e] p-8 rounded-none relative overflow-hidden">
+        <div class="absolute top-0 right-0 p-2 text-xs text-[#ff007f] font-bold opacity-70">SYSTEM_STATUS: ACTIVE</div>
         
-        <div class="text-center mb-12">
-            <div class="inline-block px-3 py-1 bg-cyan-950/50 border border-cyan-500/30 rounded-full text-cyan-400 text-xs font-mono uppercase tracking-widest mb-4">
-                🛡️ AI Security Core Active
-            </div>
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-200 to-indigo-400 mb-4">
-                VDX AI // Cyber Auditor
-            </h1>
-            <p class="text-slate-400 text-lg max-w-xl mx-auto">
-                Veb-saytingiz xavfsizlik holatini real vaqt rejimida skaner qiling va sun'iy intellekt yordamida tuzatish kodlariga ega bo'ling.
-            </p>
-        </div>
+        <h1 class="text-4xl font-extrabold mb-2 text-center text-[#ff007f] tracking-widest uppercase">
+            ⚡ VDX AI // CYBER AUDITOR ⚡
+        </h1>
+        <p class="text-center text-gray-400 mb-8 text-sm">GLOBAL OWASP TOP 10 SECURE SCANNER v2.0</p>
 
-        <form id="auditForm" class="bg-slate-900/60 backdrop-blur-md p-4 border border-slate-800 rounded-2xl shadow-2xl flex flex-col sm:flex-row gap-3 mb-10">
-            <div class="flex-1 relative">
-                <input
-                    type="text"
-                    id="urlInput"
-                    placeholder="Masalan: google.com yoki https://example.com"
-                    class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono transition-colors"
-                    required
-                />
-            </div>
-            <button
-                type="submit"
-                id="submitBtn"
-                class="sm:px-8 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 rounded-xl font-bold text-slate-950 transition-all shadow-lg shadow-cyan-500/20 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
-            >
-                <span id="btnText">Auditni boshlash</span>
+        <div class="flex flex-col md:flex-row gap-4 mb-6">
+            <input type="text" id="targetUrl" placeholder="https://target-website.com" 
+                   class="flex-1 bg-black border border-[#39ff14] px-4 py-3 text-[#39ff14] focus:outline-none focus:ring-2 focus:ring-[#ff007f] text-lg">
+            <button onclick="startAudit()" class="cyber-btn text-black font-bold px-8 py-3 text-lg uppercase tracking-wider">
+                Skanerlash
             </button>
-        </form>
-
-        <div id="resultPanel" class="hidden mb-12 bg-slate-900/40 backdrop-blur-md border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden animate-fade-in">
-            <div class="bg-slate-900/90 px-6 py-4 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span id="statusDot" class="w-3 h-3 rounded-full bg-cyan-500 animate-pulse"></span>
-                    <span class="font-mono text-xs text-slate-400 uppercase tracking-wider">Live System Output</span>
-                </div>
-                <span class="text-xs text-cyan-400 font-mono">Gemini 2.5 Flash</span>
-            </div>
-            <div class="p-6 md:p-8 max-w-none">
-                <pre id="outputTarget" class="whitespace-pre-wrap font-mono text-slate-200 leading-relaxed text-xs md:text-sm bg-black/50 p-4 rounded-xl border border-slate-800 max-h-[600px] overflow-y-auto"></pre>
-            </div>
         </div>
 
-        <div class="mt-16 border-t border-slate-900 pt-12">
-            <h2 class="text-2xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-teal-400 font-mono">
-                // Premium Xususiyatlarni Faollashtiring
-            </h2>
-            <div class="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-cyan-500/50 transition-colors">
-                    <div>
-                        <div class="text-cyan-400 font-mono text-sm uppercase mb-2">🚀 Pro Plan</div>
-                        <div class="text-3xl font-bold mb-4">180,000 <span class="text-sm font-normal text-slate-400">so'm / oy</span></div>
-                        <p class="text-slate-400 text-sm mb-6">OWASP Top 10 chuqur tahlili va real vaqtda server tuzatish kodlari (patches).</p>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="buyPlan('pro', 'click')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Click orqali sotib olish</button>
-                        <button onclick="buyPlan('pro', 'payme')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Payme orqali sotib olish</button>
-                    </div>
-                </div>
-                <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between hover:border-teal-500/50 transition-colors relative overflow-hidden">
-                    <div class="absolute -right-12 -top-6 bg-teal-500 text-slate-950 font-mono font-bold text-[10px] uppercase tracking-widest px-12 py-3 rotate-45">MAX POWER</div>
-                    <div>
-                        <div class="text-teal-400 font-mono text-sm uppercase mb-2">👑 Enterprise</div>
-                        <div class="text-3xl font-bold mb-4">600,000 <span class="text-sm font-normal text-slate-400">so'm / yil</span></div>
-                        <p class="text-slate-400 text-sm mb-6">Subdomenlar tahlili, yashirin fayllar skaneri va to'liq limitsiz chuqur audit.</p>
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <button onclick="buyPlan('enterprise', 'click')" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Click orqali sotib olish</button>
-                        <button onclick="buyPlan('enterprise', 'payme')" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-sm transition-all cursor-pointer">Payme orqali sotib olish</button>
-                    </div>
-                </div>
-            </div>
+        <div id="loader" class="hidden text-center my-6 animate-pulse text-[#ff007f]">
+            [>] MATRIXGA ULANISH... OWASP VA AI TAHLIL KETMOQDA... ILTIMOS KUTING...
         </div>
-    </div>
 
-    <div id="authModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 relative shadow-2xl animate-fade-in">
-            <button id="closeModal" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl cursor-pointer">&times;</button>
+        <div id="resultContainer" class="hidden mt-8 border-t border-[#39ff14] pt-6">
+            <h2 class="text-2xl font-bold mb-4 text-[#ff007f]">// AUDIT HISOBOTI:</h2>
             
-            <div class="flex justify-center gap-4 border-b border-slate-800 pb-3 mb-6 font-mono text-sm">
-                <button id="tabLogin" class="text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer">Tizimga kirish</button>
-                <button id="tabRegister" class="text-slate-400 pb-1 cursor-pointer">Ro'yxatdan o'tish</button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-black p-4 border border-gray-800">
+                    <span class="text-gray-400">SSL Status:</span>
+                    <p id="sslRes" class="text-white font-bold"></p>
+                </div>
+                <div class="bg-black p-4 border border-gray-800">
+                    <span class="text-gray-400">Ochiq Portlar:</span>
+                    <p id="portsRes" class="text-white font-bold"></p>
+                </div>
             </div>
 
-            <form id="loginForm" class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Email manzilingiz</label>
-                    <input type="email" id="loginEmail" placeholder="user@vdx.uz" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
-                </div>
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 font-bold text-slate-950 rounded-xl transition-all cursor-pointer">Kirish</button>
-            </form>
-
-            <form id="registerForm" class="hidden flex flex-col gap-4">
-                <div>
-                    <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Foydalanuvchi nomi</label>
-                    <input type="text" id="regUsername" placeholder="shaxzod_boss" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
-                </div>
-                <div>
-                    <label class="block text-xs font-mono text-slate-400 uppercase mb-2">Email</label>
-                    <input type="email" id="regEmail" placeholder="user@vdx.uz" class="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl focus:outline-none focus:border-cyan-500 text-white font-mono" required />
-                </div>
-                <button type="submit" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 font-bold text-slate-950 rounded-xl transition-all cursor-pointer">Hisob yaratish</button>
-            </form>
+            <div class="bg-black p-6 border border-[#39ff14] max-h-96 overflow-y-auto">
+                <span class="text-[#ff007f] font-bold">[AI CHUQUOR TAHLILI & TAVSIYALAR]</span>
+                <div id="aiReport" class="text-gray-300 mt-4 whitespace-pre-line text-sm leading-relaxed"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // 🚨 O'ZINGIZNING BACKEND URL MANZILINGIZNI YOZING
-        const BACKEND_URL = "https://vdx-saas.onrender.com";
+        // SIZNING BACKEND SERVER MANZILINGIZ (Render.com ga yuklagandan keyingi URL)
+        const BACKEND_URL = "http://127.0.0.1:8000/api/audit"; 
 
-        // DOM Elementlarini ulash
-        const form = document.getElementById('auditForm');
-        const urlInput = document.getElementById('urlInput');
-        const submitBtn = document.getElementById('submitBtn');
-        const btnText = document.getElementById('btnText');
-        const resultPanel = document.getElementById('resultPanel');
-        const outputTarget = document.getElementById('outputTarget');
-        const statusDot = document.getElementById('statusDot');
+        async function startAudit() {
+            const urlInput = document.getElementById('targetUrl').value;
+            const loader = document.getElementById('loader');
+            const resultContainer = document.getElementById('resultContainer');
 
-        const authModal = document.getElementById('authModal');
-        const authModalBtn = document.getElementById('authModalBtn');
-        const closeModal = document.getElementById('closeModal');
-        const tabLogin = document.getElementById('tabLogin');
-        const tabRegister = document.getElementById('tabRegister');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const userBadge = document.getElementById('userBadge');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        // Mahalliy xotiradan (LocalStorage) seansni tiklash
-        let currentUserEmail = localStorage.getItem('user_email') || "user@vdx.uz";
-        let currentUserTier = localStorage.getItem('user_tier') || "free";
-        let currentUserName = localStorage.getItem('user_name') || "";
-
-        function updateAuthUI() {
-            if (localStorage.getItem('user_email')) {
-                authModalBtn.classList.add('hidden');
-                userBadge.textContent = `${currentUserName} (${currentUserTier.toUpperCase()})`;
-                userBadge.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
-            } else {
-                authModalBtn.classList.remove('hidden');
-                userBadge.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
-            }
-        }
-        updateAuthUI();
-
-        // Modal oynasini boshqarish dizayni
-        authModalBtn.onclick = () => authModal.classList.remove('hidden');
-        closeModal.onclick = () => authModal.classList.add('hidden');
-        
-        tabLogin.onclick = () => {
-            tabLogin.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
-            tabRegister.className = "text-slate-400 pb-1 cursor-pointer";
-            loginForm.classList.remove('hidden');
-            registerForm.classList.add('hidden');
-        };
-        tabRegister.onclick = () => {
-            tabRegister.className = "text-cyan-400 border-b-2 border-cyan-400 pb-1 cursor-pointer";
-            tabLogin.className = "text-slate-400 pb-1 cursor-pointer";
-            registerForm.classList.remove('hidden');
-            loginForm.classList.add('hidden');
-        };
-
-        // Logout (Tizimdan chiqish)
-        logoutBtn.onclick = () => {
-            localStorage.clear();
-            currentUserEmail = "user@vdx.uz";
-            currentUserTier = "free";
-            currentUserName = "";
-            updateAuthUI();
-            alert('Tizimdan chiqdingiz.');
-        };
-
-        // 🔐 Tizimga kirish (Login Event)
-        loginForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/v1/auth/login?email=${encodeURIComponent(email)}`, { method: 'POST' });
-                if (!response.ok) throw new Error('Foydalanuvchi topilmadi! Avval ro\'yxatdan o\'ting.');
-                const data = await response.json();
-                
-                localStorage.setItem('user_email', email);
-                localStorage.setItem('user_tier', data.tier);
-                localStorage.setItem('user_name', data.username);
-                
-                currentUserEmail = email;
-                currentUserTier = data.tier;
-                currentUserName = data.username;
-                
-                updateAuthUI();
-                authModal.classList.add('hidden');
-                alert(`Xush kelibsiz, ${data.username}!`);
-            } catch (err) {
-                alert(err.message);
-            }
-        };
-
-        // 📝 Ro'yxatdan o'tish (Register Event)
-        registerForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const username = document.getElementById('regUsername').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/v1/auth/register?email=${encodeURIComponent(email)}&username=${encodeURIComponent(username)}`, { method: 'POST' });
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.detail || 'Xatolik yuz berdi.');
-                }
-                alert('Muvaffaqiyatli hisob yaratildi! Endi "Tizimga kirish" bo\'limidan kiring.');
-                tabLogin.click();
-            } catch (err) {
-                alert(err.message);
-            }
-        };
-
-        // 💳 Billing Checkout (To'lov havolasini olish)
-        async function buyPlan(plan, provider) {
-            if (!localStorage.getItem('user_email')) {
-                alert('To\'lov qilish uchun avval tizimga kiring!');
-                authModal.classList.remove('hidden');
+            if(!urlInput) {
+                alert("Iltimos, URL manzilini kiriting!");
                 return;
             }
+
+            loader.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+
             try {
-                const response = await fetch(`${BACKEND_URL}/api/v1/billing/checkout?email=${encodeURIComponent(currentUserEmail)}&plan=${plan}&provider=${provider}`, { method: 'POST' });
-                if (!response.ok) throw new Error('To\'lov tizimida uzilish yuz berdi.');
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput })
+                });
+
                 const data = await response.json();
-                if (data.payment_url) {
-                    window.location.href = data.payment_url;
+
+                if(response.ok) {
+                    document.getElementById('sslRes').innerText = data.technical_data.ssl_status;
+                    document.getElementById('portsRes').innerText = data.technical_data.open_ports.length > 0 ? data.technical_data.open_ports.join(', ') : "Barcha standart portlar yopiq";
+                    
+                    // Markdown ko'rinishidagi matnni chiroyli chiqarish
+                    document.getElementById('aiReport').innerText = data.ai_report;
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    alert("Xatolik yuz berdi: " + data.detail);
                 }
-            } catch (err) {
-                alert(err.message);
+            } catch (error) {
+                alert("Serverga ulanib bo'lmadi. Backend ishlayotganini tekshiring.");
+            } finally {
+                loader.classList.add('hidden');
             }
         }
-
-        // 🚨 JONLI REAL-TIME SSE SKANERLASH LOGIKASI (YANGILANGAN VA BENUQSON)
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const urlValue = urlInput.value.trim();
-            if (!urlValue) return;
-
-            // Tugmalarni bloklash (Skaner paytida qayta bosilmasligi uchun)
-            submitBtn.disabled = true;
-            urlInput.disabled = true;
-            btnText.innerHTML = `<span class="flex items-center justify-center gap-2"><span class="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin"></span>Audit ketmoqda...</span>`;
-            
-            outputTarget.textContent = 'Tizim yuklanmoqda va aloqa o\'rnatilmoqda... \n';
-            resultPanel.classList.remove('hidden');
-            statusDot.className = "w-3 h-3 rounded-full bg-cyan-500 animate-pulse";
-
-            let cleanUrl = urlValue;
-            if (!/^https?:\/\//i.test(cleanUrl)) {
-                cleanUrl = 'https://' + cleanUrl;
-            }
-
-            // Backendga yo'naltirilgan xavfsiz SSE Gateway API
-            const backendUrl = `${BACKEND_URL}/api/v1/audit?url=${encodeURIComponent(cleanUrl)}&lang=uz&auth_email=${encodeURIComponent(currentUserEmail)}`;
-            
-            const eventSource = new EventSource(backendUrl);
-
-            // Jonli oqim xabarlarini qabul qilish va tozalash
-            eventSource.onmessage = function(event) {
-                if (outputTarget.textContent === 'Tizim yuklanmoqda va aloqa o\'rnatilmoqda... \n') {
-                    outputTarget.textContent = '';
-                }
-                
-                // Agar backend "[DONE]" kalit so'zini jo'natsa, demak AI yakunladi
-                if (event.data.includes("[DONE]")) {
-                    eventSource.close();
-                    finalizeAudit();
-                    return;
-                }
-                
-                // Matnni silliq chop etish va pastga avtomatik skrol qilish
-                outputTarget.textContent += event.data + '\n';
-                outputTarget.scrollTop = outputTarget.scrollHeight;
-            };
-
-            // Oqim uzilganda yoki tugaganda holatni asliga qaytarish
-            eventSource.onerror = function(err) {
-                console.log("Oqim kanali yopildi.");
-                eventSource.close();
-                finalizeAudit();
-            };
-
-            function finalizeAudit() {
-                submitBtn.disabled = false;
-                urlInput.disabled = false;
-                btnText.textContent = 'Auditni boshlash';
-                statusDot.className = "w-3 h-3 rounded-full bg-green-500";
-            }
-        });
     </script>
 </body>
 </html>
