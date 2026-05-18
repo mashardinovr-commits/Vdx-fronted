@@ -111,5 +111,103 @@
         function parseMarkdown(text) {
             if (!text) return "";
             return text
-                .replace(/### (.*?)\n/g,
-    
+                .replace(/### (.*?)\n/g, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>')
+                .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-blue-400 border-b border-gray-800 pb-1 mt-6 mb-3">$1</h2>')
+                .replace(/# (.*?)\n/g, '<h1 class="text-xl font-black text-white my-4">$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+                .replace(/\* (.*?)\n/g, '<li class="text-gray-300">$1</li>')
+                .replace(/- (.*?)\n/g, '<li class="text-gray-300">$1</li>')
+                .replace(/\n/g, '<br>');
+        }
+
+        async function launchAudit() {
+            const urlInput = document.getElementById('targetUrl').value;
+            const loader = document.getElementById('loader');
+            const dashboard = document.getElementById('dashboard');
+
+            if(!urlInput) { alert("Iltimos, URL manzilini kiriting!"); return; }
+
+            loader.classList.remove('hidden');
+            dashboard.classList.add('hidden');
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput })
+                });
+
+                const data = await response.json();
+
+                if(response.ok && data.status === "success") {
+                    const tech = data.technical_data;
+                    
+                    document.getElementById('reportTarget').innerText = `Nishon: ${urlInput}`;
+                    document.getElementById('scoreBadge').innerText = tech.score || "100/100";
+                    document.getElementById('ratingText').innerText = `Reyting: ${tech.rating || 'A'}`;
+                    
+                    document.getElementById('sslStatus').innerText = tech.ssl;
+                    document.getElementById('sslStatus').className = tech.ssl.includes("XAVFSIZ") ? "text-emerald-400 font-bold" : "text-rose-500 font-bold";
+                    
+                    document.getElementById('cmsStatus').innerText = tech.infrastructure ? `${tech.infrastructure.CMS} (${tech.infrastructure.Server})` : "Aniqlanmadi";
+                    
+                    document.getElementById('sqliStatus').innerText = tech.sqli;
+                    document.getElementById('sqliStatus').className = tech.sqli.includes("ZAIFLIK") ? "text-rose-500 font-bold" : "text-emerald-400 font-bold";
+                    
+                    document.getElementById('leaksStatus').innerText = Array.isArray(tech.sensitive_leaks) ? tech.sensitive_leaks.join(', ') : tech.sensitive_leaks;
+
+                    document.getElementById('aiReportText').innerHTML = parseMarkdown(data.ai_report);
+                    dashboard.classList.remove('hidden');
+                } else {
+                    alert("Xatolik: " + (data.detail || "Hisobotni tayyorlashda muammo yuz berdi."));
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Serverga ulanishda xatolik yuz berdi.");
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdfContent');
+            
+            if (!element || element.clientHeight === 0) {
+                alert("Xatolik: PDF yaratish uchun avval hisobot ma'lumotlari yuklanishi kerak!");
+                return;
+            }
+
+            // [MHIJROYA STRATEGIYA]: Vaqtincha oq fonga va qora matnlarga o'tkazamiz (Printer-friendly)
+            element.classList.add('pdf-mode-active');
+
+            const opt = {
+                margin:       [12, 12, 12, 12],
+                filename:     'VDX_Cyber_Audit_Report.pdf',
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true,
+                    backgroundColor: '#ffffff', // Rasmiy oq fon
+                    letterRendering: true,
+                    logging: false
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Sinxron zanjir orqali render qilish (Bo'sh chiqib ketish xavfi 0% ga tushadi)
+            html2pdf().set(opt).from(element).toContainer().toCanvas().toImg().toPdf().save()
+            .then(() => {
+                // PDF yuklab bo'lingach, Dark Mode holatiga qaytaramiz
+                element.classList.remove('pdf-mode-active');
+            })
+            .catch((err) => {
+                console.error("PDF yaratishda xatolik:", err);
+                element.classList.remove('pdf-mode-active');
+                alert("PDF yuklashda muammo bo'ldi. Qayta urinib ko'ring.");
+            });
+        }
+    </script>
+</body>
+</html>
