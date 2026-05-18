@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VDX AI // CYBER AUDITOR PRO</title>
+    <title>VDX AI // CYBER AUDITOR ULTRA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         body {
             font-family: 'Share Tech Mono', monospace;
-            background-color: #05050a;
+            background-color: #040408;
             color: #39ff14;
         }
         .cyber-border {
@@ -36,46 +36,57 @@
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
 
-    <div class="w-full max-w-5xl cyber-border bg-[#0b0b16] p-6 md:p-10 relative">
-        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">CORE_STATUS: ACTIVE</div>
+    <div class="w-full max-w-6xl cyber-border bg-[#07070f] p-6 md:p-10 relative">
+        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">SYSTEM_VERSION: ULTRA_v3.5</div>
         
         <h1 class="text-3xl md:text-5xl font-extrabold mb-2 text-center text-[#ff007f] tracking-widest uppercase">
-            ⚡ VDX AI // CYBER AUDITOR PRO ⚡
+            ⚡ VDX AI // CYBER AUDITOR ULTRA ⚡
         </h1>
-        <p class="text-center text-gray-400 mb-8 text-xs md:text-sm">ADVANCED RED-TEAM & BLUE-TEAM COGNITIVE SCANNER v3.0</p>
+        <p class="text-center text-gray-400 mb-8 text-xs md:text-sm">MITRE ATT&CK & OWASP INTELLIGENCE SYSTEM</p>
 
         <div class="flex flex-col md:flex-row gap-4 mb-8">
             <input type="text" id="targetUrl" placeholder="https://zamon.uz" 
                    class="flex-1 bg-black border border-[#39ff14] px-4 py-3 text-[#39ff14] focus:outline-none focus:ring-2 focus:ring-[#ff007f] text-lg">
             <button onclick="startAudit()" class="cyber-btn text-black font-bold px-10 py-3 text-lg uppercase tracking-wider">
-                Hujum & Audit
+                DEEP SCAN & AUDIT
             </button>
         </div>
 
         <div id="loader" class="hidden text-center my-8 animate-pulse text-[#ff007f] text-sm md:text-base">
-            [>] TARMOQ SKANERLANMOQDA... GROQ M MATRIX TAHLILI YUBORILMOQDA... ILTIMOS KUTING...
+            [>] ULTRA RECONNAISSANCE JARAYONI... SUBDOMENLAR VA JILLAR SKANERLANMOQDA... LLAMA-3.3 TAHLIL CHIZIG'I...
         </div>
 
         <div id="resultContainer" class="hidden mt-8 border-t-2 border-[#39ff14] pt-8">
-            <h2 class="text-2xl font-bold mb-6 text-[#ff007f] uppercase">// SKANERLASH DASTLABKI NATIJALARI:</h2>
+            <h2 class="text-2xl font-bold mb-6 text-[#ff007f] uppercase">// ULTRA SCANNER LIVE CHIQISHI:</h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div class="bg-black p-4 border border-gray-800 rounded">
                     <span class="text-gray-400 text-xs uppercase block mb-1">SSL Shifrlash Status:</span>
-                    <p id="sslRes" class="text-white font-bold text-sm md:text-base"></p>
+                    <p id="sslRes" class="text-white font-bold text-sm"></p>
                 </div>
                 <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">Aniqlangan Ochiq Portlar:</span>
-                    <p id="portsRes" class="text-white font-bold text-sm md:text-base"></p>
+                    <span class="text-gray-400 text-xs uppercase block mb-1">Ochiq Tarmoq Portlari:</span>
+                    <p id="portsRes" class="text-white font-bold text-sm"></p>
                 </div>
                 <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">DNS SPF Pochta Himoyasi:</span>
-                    <p id="dnsRes" class="text-yellow-400 font-bold text-sm md:text-base"></p>
+                    <span class="text-gray-400 text-xs uppercase block mb-1">DNS SPF Himoyasi:</span>
+                    <p id="dnsRes" class="text-yellow-400 font-bold text-sm"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-black p-4 border border-gray-800 rounded">
+                    <span class="text-[#ff007f] text-xs uppercase block mb-1">🔍 Topilgan Faol Subdomenlar:</span>
+                    <p id="subdomainsRes" class="text-blue-400 font-bold text-sm"></p>
+                </div>
+                <div class="bg-black p-4 border border-gray-800 rounded">
+                    <span class="text-[#ff007f] text-xs uppercase block mb-1">📂 Sezgir Tizim Yo'llari (Paths):</span>
+                    <p id="pathsRes" class="text-red-400 font-bold text-sm"></p>
                 </div>
             </div>
 
             <div class="bg-black p-4 md:p-6 border border-[#39ff14] max-h-[500px] overflow-y-auto">
-                <span class="text-[#ff007f] font-bold block border-b border-[#ff007f] pb-2 text-sm md:text-base">[AI DEEP ANALYSIS & REMEDIATION REPORT]</span>
+                <span class="text-[#ff007f] font-bold block border-b border-[#ff007f] pb-2 text-sm md:text-base">[AI EXPLOITATION & REMEDIATION REPORT]</span>
                 <div id="aiReport" class="text-gray-300 mt-4 text-sm leading-relaxed"></div>
             </div>
         </div>
@@ -121,10 +132,12 @@
 
                 if(response.ok && data.status === "success") {
                     document.getElementById('sslRes').innerText = data.technical_data.ssl_status;
-                    document.getElementById('portsRes').innerText = Array.isArray(data.technical_data.open_ports) 
-                        ? data.technical_data.open_ports.join(', ') 
-                        : data.technical_data.open_ports;
+                    document.getElementById('portsRes').innerText = Array.isArray(data.technical_data.open_ports) ? data.technical_data.open_ports.join(', ') : data.technical_data.open_ports;
                     document.getElementById('dnsRes').innerText = data.technical_data.dns_analysis.SPF_Record;
+                    
+                    // Yangi vizual elementlar ma'lumotlari
+                    document.getElementById('subdomainsRes').innerText = Array.isArray(data.technical_data.subdomains_found) ? data.technical_data.subdomains_found.join(', ') : data.technical_data.subdomains_found;
+                    document.getElementById('pathsRes').innerText = Array.isArray(data.technical_data.interesting_paths) ? data.technical_data.interesting_paths.join(', ') : data.technical_data.interesting_paths;
                     
                     document.getElementById('aiReport').innerHTML = parseMarkdown(data.ai_report);
                     resultContainer.classList.remove('hidden');
@@ -132,9 +145,10 @@
                     alert("Tizim xatoligi: " + (data.detail || "Noma'lum ichki xatolik yuz berdi."));
                 }
             } catch (error) {
-                alert("Xatolik yuz berdi. Iltimos, Render paneldagi loglarni yoki ulanishni tekshiring.");
-            } window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            loader.classList.add('hidden');
+                alert("Ulanish xatosi yoki server uyqu rejimida. Qayta urinib ko'ring.");
+            } finally {
+                loader.classList.add('hidden');
+            }
         }
     </script>
 </body>
