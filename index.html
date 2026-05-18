@@ -10,7 +10,7 @@
         body {
             font-family: 'Share Tech Mono', monospace;
             background-color: #05050a;
-            color: #39ff14; /* Neon Yashil */
+            color: #39ff14;
         }
         .cyber-border {
             border: 2px solid #39ff14;
@@ -24,10 +24,9 @@
             box-shadow: 0 0 25px #ff007f, 0 0 10px #39ff14;
             transform: scale(1.02);
         }
-        /* AI Markdown tahlili uchun chiroyli terminal render sozlamalari */
         pre { background-color: #000000; padding: 16px; border-left: 4px solid #ff007f; color: #39ff14; overflow-x: auto; font-family: monospace; margin: 14px 0; border: 1px solid #39ff14; }
         code { color: #ff007f; font-family: monospace; background: #111122; padding: 2px 6px; border-radius: 3px; }
-        h1, h2, h3 { color: #ff007f; font-weight: bold; margin-top: 20px; tracking-wide: 1px; }
+        h1, h2, h3 { color: #ff007f; font-weight: bold; margin-top: 20px; }
         h2 { font-size: 1.5rem; border-bottom: 1px dashed #ff007f; padding-bottom: 4px; }
         h3 { font-size: 1.2rem; }
         ul { list-style-type: square; margin-left: 24px; color: #e0e0e0; }
@@ -38,7 +37,7 @@
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
 
     <div class="w-full max-w-5xl cyber-border bg-[#0b0b16] p-6 md:p-10 relative">
-        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">CORE_STATUS: SECURE_RUNNING</div>
+        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">CORE_STATUS: ACTIVE</div>
         
         <h1 class="text-3xl md:text-5xl font-extrabold mb-2 text-center text-[#ff007f] tracking-widest uppercase">
             ⚡ VDX AI // CYBER AUDITOR PRO ⚡
@@ -54,7 +53,7 @@
         </div>
 
         <div id="loader" class="hidden text-center my-8 animate-pulse text-[#ff007f] text-sm md:text-base">
-            [>] TARMOQ SKANERLANMOQDA... GROQ LLAMA-3.3 70B M MATRIX TAHLILI YUBORILMOQDA... ILTIMOS KUTING...
+            [>] TARMOQ SKANERLANMOQDA... GROQ M MATRIX TAHLILI YUBORILMOQDA... ILTIMOS KUTING...
         </div>
 
         <div id="resultContainer" class="hidden mt-8 border-t-2 border-[#39ff14] pt-8">
@@ -83,10 +82,8 @@
     </div>
 
     <script>
-        // Render platformasidagi API manzili
         const BACKEND_URL = "https://vdx-saas.onrender.com/api/audit"; 
 
-        // Sun'iy intellekt taqdim etgan mukammal markdown formatini HTML elementlariga aylantiruvchi parser
         function parseMarkdown(text) {
             return text
                 .replace(/### (.*?)\n/g, '<h3>$1</h3>')
@@ -123,24 +120,21 @@
                 const data = await response.json();
 
                 if(response.ok && data.status === "success") {
-                    // Texnik ma'lumotlarni interfeysga bog'lash
                     document.getElementById('sslRes').innerText = data.technical_data.ssl_status;
                     document.getElementById('portsRes').innerText = Array.isArray(data.technical_data.open_ports) 
                         ? data.technical_data.open_ports.join(', ') 
                         : data.technical_data.open_ports;
                     document.getElementById('dnsRes').innerText = data.technical_data.dns_analysis.SPF_Record;
                     
-                    // AI hisobotini chiroyli tarzda vizuallashtirish
                     document.getElementById('aiReport').innerHTML = parseMarkdown(data.ai_report);
                     resultContainer.classList.remove('hidden');
                 } else {
                     alert("Tizim xatoligi: " + (data.detail || "Noma'lum ichki xatolik yuz berdi."));
                 }
             } catch (error) {
-                alert("Server uyqu rejimidan uyg'onmoqda yoki ulanish uzildi. Iltimos, 20 soniyadan so'ng qaytadan urinib ko'ring.");
-            } finally {
-                loader.classList.add('hidden');
-            }
+                alert("Xatolik yuz berdi. Iltimos, Render paneldagi loglarni yoki ulanishni tekshiring.");
+            } window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            loader.classList.add('hidden');
         }
     </script>
 </body>
