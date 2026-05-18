@@ -24,8 +24,12 @@
             box-shadow: 0 0 25px #ff007f, 0 0 10px #39ff14;
             transform: scale(1.02);
         }
-        /* Markdown kod ko'rinishi uchun */
-        pre { background-color: #111122; padding: 10px; border-radius: 5px; color: #ff007f; overflow-x: auto; }
+        /* Markdown va kod bloklari dizayni */
+        pre { background-color: #05050b; padding: 12px; border-left: 3px solid #ff007f; color: #39ff14; overflow-x: auto; font-family: monospace; margin: 10px 0; }
+        code { color: #ff007f; font-family: monospace; background: #1a1a2e; padding: 2px 6px; border-radius: 3px; }
+        h3 { color: #ff007f; font-weight: bold; margin-top: 15px; font-size: 1.2rem; }
+        ul { list-style-type: square; margin-left: 20px; color: #e0e0e0; }
+        li { margin-bottom: 5px; }
     </style>
 </head>
 <body class="p-6 min-h-screen flex flex-col items-center justify-center">
@@ -65,15 +69,26 @@
             </div>
 
             <div class="bg-black p-6 border border-[#39ff14] max-h-96 overflow-y-auto">
-                <span class="text-[#ff007f] font-bold">[AI CHUQUOR TAHLILI & TAVSIYALAR]</span>
-                <div id="aiReport" class="text-gray-300 mt-4 whitespace-pre-line text-sm leading-relaxed"></div>
+                <span class="text-[#ff007f] font-bold">[AI CHUQUR TAHLILI & TAVSIYALAR]</span>
+                <div id="aiReport" class="text-gray-300 mt-4 text-sm leading-relaxed"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // SIZNING BACKEND SERVER MANZILINGIZ (Render.com ga yuklagandan keyingi URL)
-        const BACKEND_URL = "http://127.0.0.1:8000/api/audit"; 
+        // SIZNING JONLI BACKEND SERVER MANZILINGIZ (Muvaffaqiyatli ulandi)
+        const BACKEND_URL = "https://vdx-saas.onrender.com/api/audit"; 
+
+        // AI dan keladigan markdown matnni terminalbop vizual ko'rinishga keltirish uchun oddiy parser
+        function parseMarkdown(text) {
+            return text
+                .replace(/### (.*?)\n/g, '<h3>$1</h3>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+                .replace(/\* (.*?)\n/g, '<li>$1</li>')
+                .replace(/\n/g, '<br>');
+        }
 
         async function startAudit() {
             const urlInput = document.getElementById('targetUrl').value;
@@ -97,18 +112,20 @@
 
                 const data = await response.json();
 
-                if(response.ok) {
+                if(response.ok && data.status === "success") {
                     document.getElementById('sslRes').innerText = data.technical_data.ssl_status;
-                    document.getElementById('portsRes').innerText = data.technical_data.open_ports.length > 0 ? data.technical_data.open_ports.join(', ') : "Barcha standart portlar yopiq";
+                    document.getElementById('portsRes').innerText = data.technical_data.open_ports.length > 0 
+                        ? data.technical_data.open_ports.join(', ') 
+                        : "Barcha standart portlar yopiq";
                     
-                    // Markdown ko'rinishidagi matnni chiroyli chiqarish
-                    document.getElementById('aiReport').innerText = data.ai_report;
+                    // Kelgan hisobotni kiberpank formatda render qilish
+                    document.getElementById('aiReport').innerHTML = parseMarkdown(data.ai_report);
                     resultContainer.classList.remove('hidden');
                 } else {
-                    alert("Xatolik yuz berdi: " + data.detail);
+                    alert("Xatolik yuz berdi: " + (data.detail || "Noma'lum xatolik"));
                 }
             } catch (error) {
-                alert("Serverga ulanib bo'lmadi. Backend ishlayotganini tekshiring.");
+                alert("Serverga ulanib bo'lmadi. Render uyqu rejimida bo'lishi mumkin, 30 soniya kutib qaytadan urinib ko'ring.");
             } finally {
                 loader.classList.add('hidden');
             }
