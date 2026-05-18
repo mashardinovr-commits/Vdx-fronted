@@ -3,78 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VDX AI // AUTONOMOUS AUDITOR</title>
+    <title>VDX AI // Cyber Security Enterprise Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-        body {
-            font-family: 'Share Tech Mono', monospace;
-            background-color: #030306;
-            color: #39ff14;
-        }
-        .cyber-border {
-            border: 2px solid #39ff14;
-            box-shadow: 0 0 20px #39ff14, inset 0 0 10px #39ff14;
-        }
-        .cyber-btn {
-            background: linear-gradient(45deg, #ff007f, #39ff14);
-            transition: all 0.3s ease;
-        }
-        .cyber-btn:hover {
-            box-shadow: 0 0 25px #ff007f, 0 0 10px #39ff14;
-        }
-        pre { background-color: #000000; padding: 16px; border-left: 4px solid #ff007f; color: #39ff14; overflow-x: auto; margin: 14px 0; border: 1px solid #39ff14; }
-        code { color: #ff007f; background: #111122; padding: 2px 6px; }
-        h1, h2, h3 { color: #ff007f; font-weight: bold; margin-top: 20px; }
-        h2 { font-size: 1.5rem; border-bottom: 1px dashed #ff007f; padding-bottom: 4px; }
-        ul { list-style-type: square; margin-left: 24px; color: #e0e0e0; }
-        strong { color: #ffffff; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        .enterprise-card { background: #111827; border: 1px solid #1f2937; border-radius: 12px; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; }
+        pre { background: #030712; padding: 16px; border-radius: 8px; color: #10b981; border: 1px solid #1f2937; overflow-x: auto; font-family: monospace; }
+        code { color: #f43f5e; background: #1e1b4b; padding: 2px 6px; border-radius: 4px; font-family: monospace; }
+        h1, h2, h3 { color: #ffffff; font-weight: 700; margin-top: 18px; }
+        h2 { font-size: 1.4rem; border-bottom: 2px solid #374151; padding-bottom: 6px; margin-bottom: 12px; }
+        ul { list-style-type: disc; margin-left: 24px; margin-bottom: 12px; }
+        li { margin-bottom: 4px; }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
+<body class="p-4 md:p-10">
 
-    <div class="w-full max-w-6xl cyber-border bg-[#05050b] p-6 md:p-10 relative">
-        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">MODE: AUTONOMOUS_SCANNER</div>
-        
-        <h1 class="text-3xl md:text-5xl font-extrabold mb-2 text-center text-[#ff007f] tracking-widest uppercase">
-            ⚡ VDX AI // AUTONOMOUS AUDITOR ⚡
-        </h1>
-        <p class="text-center text-gray-400 mb-8 text-xs md:text-sm">ACTIVE VULNERABILITY SIMULATION SYSTEM</p>
-
-        <div class="flex flex-col md:flex-row gap-4 mb-8">
-            <input type="text" id="targetUrl" placeholder="https://zamon.uz" 
-                   class="flex-1 bg-black border border-[#39ff14] px-4 py-3 text-[#39ff14] focus:outline-none text-lg">
-            <button onclick="startAudit()" class="cyber-btn text-black font-bold px-10 py-3 text-lg uppercase tracking-wider">
-                LAUNCH AUTONOMOUS AUDIT
-            </button>
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 pb-6 border-b border-gray-800">
+            <div>
+                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-emerald-400">VDX AI // CYBER AUDITOR</h1>
+                <p class="text-gray-400 text-sm mt-1">Avtomatlashtirilgan Korporativ Kiberxavfsizlik Tahlili</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <span class="bg-blue-900/50 text-blue-400 text-xs font-semibold px-3 py-1.5 rounded-md border border-blue-800">ENTERPRISE EDITION</span>
+            </div>
         </div>
 
-        <div id="loader" class="hidden text-center my-8 animate-pulse text-[#ff007f]">
-            [>] FAOL MANTIQIY ZAIFLIKLAR SINAB KO'RILMOQDA (SQLi / XSS)... AI HISOBOT TAYYORLANMOQDA...
+        <div class="enterprise-card p-6 mb-8 shadow-xl">
+            <label class="block text-sm font-medium text-gray-400 mb-2">Audit qilinadigan korporativ veb-resurs (URL):</label>
+            <div class="flex flex-col md:flex-row gap-3">
+                <input type="text" id="targetUrl" placeholder="https://example.uz" 
+                       class="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition">
+                <button onclick="launchAudit()" class="bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-semibold px-8 py-3 rounded-lg transition shadow-lg">
+                    Auditni Boshlash
+                </button>
+            </div>
         </div>
 
-        <div id="resultContainer" class="hidden mt-8 border-t-2 border-[#39ff14] pt-8">
-            <h2 class="text-2xl font-bold mb-6 text-[#ff007f] uppercase">// SIMULATSIYA NATIJALARI:</h2>
+        <div id="loader" class="hidden text-center my-12">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
+            <p class="text-gray-400 animate-pulse">Tizim faol zaifliklarni simulyatsiya qilmoqda va AI hisobotini tayyorlamoqda. Iltimos kuting...</p>
+        </div>
+
+        <div id="dashboard" class="hidden space-y-8">
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">SQL Injection Testi:</span>
-                    <p id="sqliRes" class="text-white font-bold text-sm"></p>
+            <div id="pdfContent" class="space-y-6 bg-[#111827] p-8 rounded-xl border border-gray-800">
+                
+                <div class="border-b border-gray-700 pb-4 mb-4 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mt-0 border-0 pb-0">KIBERXAVFSIZLIK AUDIT HISOBOTI</h2>
+                        <p class="text-sm text-gray-400" id="reportTarget"></p>
+                    </div>
+                    <div class="text-right">
+                        <span id="scoreBadge" class="text-3xl font-black text-emerald-400 block"></span>
+                        <span id="ratingText" class="text-xs text-gray-400 uppercase"></span>
+                    </div>
                 </div>
-                <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">XSS Kirish Testi:</span>
-                    <p id="xssRes" class="text-white font-bold text-sm"></p>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-gray-900/60 p-4 rounded-lg border border-gray-800">
+                        <span class="text-xs text-gray-400 block mb-1">SSL SERTIFIKAT:</span>
+                        <span id="sslStatus" class="font-bold text-sm"></span>
+                    </div>
+                    <div class="bg-gray-900/60 p-4 rounded-lg border border-gray-800">
+                        <span class="text-xs text-gray-400 block mb-1">INFRASTRUKTURA & CMS:</span>
+                        <span id="cmsStatus" class="font-bold text-sm text-white"></span>
+                    </div>
+                    <div class="bg-gray-900/60 p-4 rounded-lg border border-gray-800">
+                        <span class="text-xs text-gray-400 block mb-1">SQL INJECTION TESTI:</span>
+                        <span id="sqliStatus" class="font-bold text-sm"></span>
+                    </div>
+                    <div class="bg-gray-900/60 p-4 rounded-lg border border-gray-800">
+                        <span class="text-xs text-gray-400 block mb-1">SIZIB CHIQQAN FAYLLAR:</span>
+                        <span id="leaksStatus" class="font-bold text-sm text-amber-400"></span>
+                    </div>
                 </div>
-                <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">Maxfiy Fayllar Sizishi:</span>
-                    <p id="leaksRes" class="text-yellow-400 font-bold text-sm"></p>
+
+                <div class="mt-6">
+                    <h3 class="text-lg font-bold text-gray-200 border-b border-gray-800 pb-2 mb-4">🛡️ CHUQUR AI TAHLILI VA TAVSIYALAR:</h3>
+                    <div id="aiReportText" class="text-gray-300 text-sm leading-relaxed space-y-4"></div>
                 </div>
+            </div>
+            <div class="flex justify-end">
+                <button onclick="downloadPDF()" class="bg-gray-800 hover:bg-gray-700 text-white font-medium px-6 py-3 rounded-lg transition flex items-center gap-2 border border-gray-700">
+                    📥 PDF Formatda Yuklab Olish
+                </button>
             </div>
 
-            <div class="bg-black p-4 md:p-6 border border-[#39ff14] max-h-[500px] overflow-y-auto">
-                <span class="text-[#ff007f] font-bold block border-b border-[#ff007f] pb-2 text-sm md:text-base">[AI EXPLOIT ANALYSIS & REMEDIATION]</span>
-                <div id="aiReport" class="text-gray-300 mt-4 text-sm leading-relaxed"></div>
-            </div>
         </div>
     </div>
 
@@ -83,29 +101,26 @@
 
         function parseMarkdown(text) {
             return text
-                .replace(/### (.*?)\n/g, '<h3>$1</h3>')
-                .replace(/## (.*?)\n/g, '<h2>$1</h2>')
-                .replace(/# (.*?)\n/g, '<h1 class="text-xl font-bold my-2 text-white">$1</h1>')
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/### (.*?)\n/g, '<h3 class="text-base font-bold text-white mt-4 mb-2">$1</h3>')
+                .replace(/## (.*?)\n/g, '<h2 class="text-lg font-bold text-blue-400 border-b border-gray-800 pb-1 mt-6 mb-3">$1</h2>')
+                .replace(/# (.*?)\n/g, '<h1 class="text-xl font-black text-white my-4">$1</h1>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>')
                 .replace(/`([^`]+)`/g, '<code>$1</code>')
                 .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
-                .replace(/\* (.*?)\n/g, '<li>$1</li>')
-                .replace(/- (.*?)\n/g, '<li>$1</li>')
+                .replace(/\* (.*?)\n/g, '<li class="text-gray-300">$1</li>')
+                .replace(/- (.*?)\n/g, '<li class="text-gray-300">$1</li>')
                 .replace(/\n/g, '<br>');
         }
 
-        async function startAudit() {
+        async function launchAudit() {
             const urlInput = document.getElementById('targetUrl').value;
             const loader = document.getElementById('loader');
-            const resultContainer = document.getElementById('resultContainer');
+            const dashboard = document.getElementById('dashboard');
 
-            if(!urlInput) {
-                alert("URL manzilini kiriting!");
-                return;
-            }
+            if(!urlInput) { alert("Iltimos, URL manzilini kiriting!"); return; }
 
             loader.classList.remove('hidden');
-            resultContainer.classList.add('hidden');
+            dashboard.classList.add('hidden');
 
             try {
                 const response = await fetch(BACKEND_URL, {
@@ -117,20 +132,44 @@
                 const data = await response.json();
 
                 if(response.ok && data.status === "success") {
-                    document.getElementById('sqliRes').innerText = data.technical_data.sqli_test;
-                    document.getElementById('xssRes').innerText = data.technical_data.xss_test;
-                    document.getElementById('leaksRes').innerText = Array.isArray(data.technical_data.sensitive_leaks) ? data.technical_data.sensitive_leaks.join(', ') : data.technical_data.sensitive_leaks;
+                    const tech = data.technical_data;
                     
-                    document.getElementById('aiReport').innerHTML = parseMarkdown(data.ai_report);
-                    resultContainer.classList.remove('hidden');
+                    document.getElementById('reportTarget').innerText = `Nishon: ${urlInput}`;
+                    document.getElementById('scoreBadge').innerText = tech.score;
+                    document.getElementById('ratingText').innerText = `Xavfsizlik Reytingi: ${tech.rating}`;
+                    
+                    document.getElementById('sslStatus').innerText = tech.ssl;
+                    document.getElementById('sslStatus').className = tech.ssl.includes("XAVFSIZ") ? "text-emerald-400 font-bold" : "text-rose-500 font-bold";
+                    
+                    document.getElementById('cmsStatus').innerText = `${tech.infrastructure.CMS} (${tech.infrastructure.Server})`;
+                    
+                    document.getElementById('sqliStatus').innerText = tech.sqli;
+                    document.getElementById('sqliStatus').className = tech.sqli.includes("ZAIFLIK") ? "text-rose-500 font-bold" : "text-emerald-400 font-bold";
+                    
+                    document.getElementById('leaksStatus').innerText = Array.isArray(tech.sensitive_leaks) ? tech.sensitive_leaks.join(', ') : tech.sensitive_leaks;
+
+                    document.getElementById('aiReportText').innerHTML = parseMarkdown(data.ai_report);
+                    dashboard.classList.remove('hidden');
                 } else {
-                    alert("Xatolik: " + (data.detail || "Ichki xatolik."));
+                    alert("Xatolik: " + (data.detail || "Hisobotni tayyorlashda muammo yuz berdi."));
                 }
             } catch (error) {
-                alert("Serverga ulanib bo'lmadi, birozdan so'ng qayta urining.");
+                alert("Serverga ulanishda xatolik yuz berdi.");
             } finally {
                 loader.classList.add('hidden');
             }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('pdfContent');
+            const opt = {
+                margin:       10,
+                filename:     'VDX_Cyber_Audit_Report.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, backgroundColor: '#111827' },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         }
     </script>
 </body>
