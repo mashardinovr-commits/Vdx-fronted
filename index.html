@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VDX AI // CYBER AUDITOR ULTRA</title>
+    <title>VDX AI // AUTONOMOUS AUDITOR</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
         body {
             font-family: 'Share Tech Mono', monospace;
-            background-color: #040408;
+            background-color: #030306;
             color: #39ff14;
         }
         .cyber-border {
@@ -22,71 +22,57 @@
         }
         .cyber-btn:hover {
             box-shadow: 0 0 25px #ff007f, 0 0 10px #39ff14;
-            transform: scale(1.02);
         }
-        pre { background-color: #000000; padding: 16px; border-left: 4px solid #ff007f; color: #39ff14; overflow-x: auto; font-family: monospace; margin: 14px 0; border: 1px solid #39ff14; }
-        code { color: #ff007f; font-family: monospace; background: #111122; padding: 2px 6px; border-radius: 3px; }
+        pre { background-color: #000000; padding: 16px; border-left: 4px solid #ff007f; color: #39ff14; overflow-x: auto; margin: 14px 0; border: 1px solid #39ff14; }
+        code { color: #ff007f; background: #111122; padding: 2px 6px; }
         h1, h2, h3 { color: #ff007f; font-weight: bold; margin-top: 20px; }
         h2 { font-size: 1.5rem; border-bottom: 1px dashed #ff007f; padding-bottom: 4px; }
-        h3 { font-size: 1.2rem; }
         ul { list-style-type: square; margin-left: 24px; color: #e0e0e0; }
-        li { margin-bottom: 6px; }
         strong { color: #ffffff; }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen flex flex-col items-center justify-center">
 
-    <div class="w-full max-w-6xl cyber-border bg-[#07070f] p-6 md:p-10 relative">
-        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">SYSTEM_VERSION: ULTRA_v3.5</div>
+    <div class="w-full max-w-6xl cyber-border bg-[#05050b] p-6 md:p-10 relative">
+        <div class="absolute top-0 right-0 p-3 text-xs text-[#ff007f] font-bold opacity-80 animate-pulse">MODE: AUTONOMOUS_SCANNER</div>
         
         <h1 class="text-3xl md:text-5xl font-extrabold mb-2 text-center text-[#ff007f] tracking-widest uppercase">
-            ⚡ VDX AI // CYBER AUDITOR ULTRA ⚡
+            ⚡ VDX AI // AUTONOMOUS AUDITOR ⚡
         </h1>
-        <p class="text-center text-gray-400 mb-8 text-xs md:text-sm">MITRE ATT&CK & OWASP INTELLIGENCE SYSTEM</p>
+        <p class="text-center text-gray-400 mb-8 text-xs md:text-sm">ACTIVE VULNERABILITY SIMULATION SYSTEM</p>
 
         <div class="flex flex-col md:flex-row gap-4 mb-8">
             <input type="text" id="targetUrl" placeholder="https://zamon.uz" 
-                   class="flex-1 bg-black border border-[#39ff14] px-4 py-3 text-[#39ff14] focus:outline-none focus:ring-2 focus:ring-[#ff007f] text-lg">
+                   class="flex-1 bg-black border border-[#39ff14] px-4 py-3 text-[#39ff14] focus:outline-none text-lg">
             <button onclick="startAudit()" class="cyber-btn text-black font-bold px-10 py-3 text-lg uppercase tracking-wider">
-                DEEP SCAN & AUDIT
+                LAUNCH AUTONOMOUS AUDIT
             </button>
         </div>
 
-        <div id="loader" class="hidden text-center my-8 animate-pulse text-[#ff007f] text-sm md:text-base">
-            [>] ULTRA RECONNAISSANCE JARAYONI... SUBDOMENLAR VA JILLAR SKANERLANMOQDA... LLAMA-3.3 TAHLIL CHIZIG'I...
+        <div id="loader" class="hidden text-center my-8 animate-pulse text-[#ff007f]">
+            [>] FAOL MANTIQIY ZAIFLIKLAR SINAB KO'RILMOQDA (SQLi / XSS)... AI HISOBOT TAYYORLANMOQDA...
         </div>
 
         <div id="resultContainer" class="hidden mt-8 border-t-2 border-[#39ff14] pt-8">
-            <h2 class="text-2xl font-bold mb-6 text-[#ff007f] uppercase">// ULTRA SCANNER LIVE CHIQISHI:</h2>
+            <h2 class="text-2xl font-bold mb-6 text-[#ff007f] uppercase">// SIMULATSIYA NATIJALARI:</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">SSL Shifrlash Status:</span>
-                    <p id="sslRes" class="text-white font-bold text-sm"></p>
+                    <span class="text-gray-400 text-xs uppercase block mb-1">SQL Injection Testi:</span>
+                    <p id="sqliRes" class="text-white font-bold text-sm"></p>
                 </div>
                 <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">Ochiq Tarmoq Portlari:</span>
-                    <p id="portsRes" class="text-white font-bold text-sm"></p>
+                    <span class="text-gray-400 text-xs uppercase block mb-1">XSS Kirish Testi:</span>
+                    <p id="xssRes" class="text-white font-bold text-sm"></p>
                 </div>
                 <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-gray-400 text-xs uppercase block mb-1">DNS SPF Himoyasi:</span>
-                    <p id="dnsRes" class="text-yellow-400 font-bold text-sm"></p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-[#ff007f] text-xs uppercase block mb-1">🔍 Topilgan Faol Subdomenlar:</span>
-                    <p id="subdomainsRes" class="text-blue-400 font-bold text-sm"></p>
-                </div>
-                <div class="bg-black p-4 border border-gray-800 rounded">
-                    <span class="text-[#ff007f] text-xs uppercase block mb-1">📂 Sezgir Tizim Yo'llari (Paths):</span>
-                    <p id="pathsRes" class="text-red-400 font-bold text-sm"></p>
+                    <span class="text-gray-400 text-xs uppercase block mb-1">Maxfiy Fayllar Sizishi:</span>
+                    <p id="leaksRes" class="text-yellow-400 font-bold text-sm"></p>
                 </div>
             </div>
 
             <div class="bg-black p-4 md:p-6 border border-[#39ff14] max-h-[500px] overflow-y-auto">
-                <span class="text-[#ff007f] font-bold block border-b border-[#ff007f] pb-2 text-sm md:text-base">[AI EXPLOITATION & REMEDIATION REPORT]</span>
+                <span class="text-[#ff007f] font-bold block border-b border-[#ff007f] pb-2 text-sm md:text-base">[AI EXPLOIT ANALYSIS & REMEDIATION]</span>
                 <div id="aiReport" class="text-gray-300 mt-4 text-sm leading-relaxed"></div>
             </div>
         </div>
@@ -114,7 +100,7 @@
             const resultContainer = document.getElementById('resultContainer');
 
             if(!urlInput) {
-                alert("Tahlil qilish uchun nishon havola (URL) manzilini kiriting!");
+                alert("URL manzilini kiriting!");
                 return;
             }
 
@@ -131,21 +117,17 @@
                 const data = await response.json();
 
                 if(response.ok && data.status === "success") {
-                    document.getElementById('sslRes').innerText = data.technical_data.ssl_status;
-                    document.getElementById('portsRes').innerText = Array.isArray(data.technical_data.open_ports) ? data.technical_data.open_ports.join(', ') : data.technical_data.open_ports;
-                    document.getElementById('dnsRes').innerText = data.technical_data.dns_analysis.SPF_Record;
-                    
-                    // Yangi vizual elementlar ma'lumotlari
-                    document.getElementById('subdomainsRes').innerText = Array.isArray(data.technical_data.subdomains_found) ? data.technical_data.subdomains_found.join(', ') : data.technical_data.subdomains_found;
-                    document.getElementById('pathsRes').innerText = Array.isArray(data.technical_data.interesting_paths) ? data.technical_data.interesting_paths.join(', ') : data.technical_data.interesting_paths;
+                    document.getElementById('sqliRes').innerText = data.technical_data.sqli_test;
+                    document.getElementById('xssRes').innerText = data.technical_data.xss_test;
+                    document.getElementById('leaksRes').innerText = Array.isArray(data.technical_data.sensitive_leaks) ? data.technical_data.sensitive_leaks.join(', ') : data.technical_data.sensitive_leaks;
                     
                     document.getElementById('aiReport').innerHTML = parseMarkdown(data.ai_report);
                     resultContainer.classList.remove('hidden');
                 } else {
-                    alert("Tizim xatoligi: " + (data.detail || "Noma'lum ichki xatolik yuz berdi."));
+                    alert("Xatolik: " + (data.detail || "Ichki xatolik."));
                 }
             } catch (error) {
-                alert("Ulanish xatosi yoki server uyqu rejimida. Qayta urinib ko'ring.");
+                alert("Serverga ulanib bo'lmadi, birozdan so'ng qayta urining.");
             } finally {
                 loader.classList.add('hidden');
             }
